@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="git-stalk",
+    name="git_stalk",
     version="0.0.1",
     author="Aashutosh Rathi",
     author_email="aashutoshrathi@gmail.com",
