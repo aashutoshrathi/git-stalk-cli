@@ -13,6 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/aashutoshrathi/git-stalk-cli",
     packages=setuptools.find_packages(),
+    install_requires=['bs4'],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU GENERAL PUBLIC License",
