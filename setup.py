@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="git_stalk",
-    version="0.1.2",
+    version="0.1.3",
     author="Aashutosh Rathi",
     author_email="aashutoshrathi@gmail.com",
     description="For stalkers like Daddu",
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/aashutoshrathi/git-stalk-cli",
     packages=setuptools.find_packages(),
-    install_requires=['bs4'],
+    install_requires=[],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -21,7 +21,7 @@ setuptools.setup(
     ),
     entry_points={
 		'console_scripts': [
-			'stalk = git_stalk.git_stalk:run',
+			'stalk = git_stalk.stalk:run',
 		],
 	}
 )
