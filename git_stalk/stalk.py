@@ -13,10 +13,10 @@ def show_contri(user):
     response = requests.get(link)
     events = response.json()
     latest = []
-
-    for event in events:
-        if event["created_at"].startswith(today):
-            latest.append(event)
+    if response.status_code == 200:    
+        for event in events:
+            if event["created_at"].startswith(today):
+                latest.append(event)
     
     return (user + " have made " + str(len(latest)) + " contributions today.")
 
