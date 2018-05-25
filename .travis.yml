@@ -4,4 +4,4 @@ python:
   - "3.5"
   - "3.6"
 
-script: python -m unittest tests.test_contri
+script: pytest
