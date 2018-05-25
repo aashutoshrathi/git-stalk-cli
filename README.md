@@ -19,4 +19,5 @@ $ stalk $username
   $username have made 10 contributions today.
 ```
 
-## Examples
+
+<p align="center"> Made from scratch with ❤ by <a href="https://github.com/aashutoshrathi">Aashutosh Rathi</a> </p>
