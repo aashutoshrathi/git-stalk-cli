@@ -20,4 +20,4 @@ $ stalk $username
 ```
 
 
-<p align="center"> Made from scratch with ❤ by <a href="https://github.com/aashutoshrathi">Aashutosh Rathi</a> </p>
+<p align="center"> Made from scratch by <a href="https://github.com/aashutoshrathi">Aashutosh Rathi</a> </p>
