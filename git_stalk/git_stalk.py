@@ -11,7 +11,7 @@ def show_contri(user):
     today = str(now.strftime("%Y-%m-%d"))
     link = "https://github.com/" + str(user)
     page = urlopen(link)
-    soup = BeautifulSoup(page, "html5lib")
+    soup = BeautifulSoup(page, 'html.parser')
     try:
         boxes = soup.find_all('rect', attrs={"data-date" : today})
         contri = boxes[0]["data-count"]
