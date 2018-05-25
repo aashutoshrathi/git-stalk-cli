@@ -16,7 +16,7 @@ setuptools.setup(
     install_requires=['bs4'],
     classifiers=(
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU GENERAL PUBLIC License",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ),
 )
