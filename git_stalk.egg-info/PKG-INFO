@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: git-stalk
+Version: 0.0.1
+Summary: For stalkers like Daddu
+Home-page: https://github.com/aashutoshrathi/git-stalk-cli
+Author: Aashutosh Rathi
+Author-email: aashutoshrathi@gmail.com
+License: UNKNOWN
+Description: # git-stalk-cli
+        
+        A command line interface for checking your/peer's contribution today.
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU GENERAL PUBLIC License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
