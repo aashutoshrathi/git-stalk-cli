@@ -4,6 +4,7 @@ except ImportError:
    from urllib2 import urlopen
 from bs4 import BeautifulSoup
 import datetime
+import sys
 
 def show_contri(user):
     contri = 0
@@ -17,4 +18,13 @@ def show_contri(user):
         contri = boxes[0]["data-count"]
     except:
         raise Exception("Either user doesn't exist or you no contributions are made today.")
-    return (int(contri))
+    return (user + " have made " + str(contri) + " contributions today.")
+
+def run():
+	if len(sys.argv) > 1:
+		print(show_contri(sys.argv[1]))
+	else:
+		print("Enter a valid username")
+
+if __name__ == '__main__':
+	run()
