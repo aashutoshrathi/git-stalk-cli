@@ -18,7 +18,7 @@ def show_contri(user):
             if event["created_at"].startswith(today):
                 latest.append(event)
     
-    return (user + " have made " + str(len(latest)) + " contributions today.")
+    return (user + " have made " + str(len(latest)) + " public contributions today.")
 
 
 def run():
