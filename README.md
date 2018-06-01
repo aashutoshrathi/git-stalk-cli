@@ -16,8 +16,29 @@ A command line interface for checking your/peer's activity today.
 ## Using
 
 ```sh
-$ stalk $username
-  It lists user profile, contributions made today and stars done today.
+$ stalk anshumanv
+  Name: Anshuman Verma
+  Company: @iiitv @fossasia
+  Followers: 103
+  Following: 154
+  Public Repos: 72
+  Contributions Today:
+  +--------------+-----------------------+-----------------------------------------------------------------------+
+  |     Type     |       Repository      |                                Details                                |
+  +--------------+-----------------------+-----------------------------------------------------------------------+
+  | Pull Request | fossasia/chat.susi.ai |         Fixes #1287: Do not show themes option on other routes        |
+  |    Issues    | fossasia/chat.susi.ai | User email should be visible on all routes rather than the index page |
+  |    Issues    | fossasia/chat.susi.ai |        Themes option should only be available on the chat page        |
+  +--------------+-----------------------+-----------------------------------------------------------------------+
+  anshumanv have made 3 public contribution(s) today.
+
+  Starred today:
+  +---------------------+----------+
+  |      Repository     | Language |
+  +---------------------+----------+
+  | senorprogrammer/wtf |    Go    |
+  +---------------------+----------+
+  anshumanv have starred 1 repo(s) today.
 ```
 
 ## Limitations
