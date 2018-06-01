@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="git_stalk",
-    version="0.1.3",
+    version="0.1.4",
     author="Aashutosh Rathi",
     author_email="aashutoshrathi@gmail.com",
     description="For stalkers like Daddu",
