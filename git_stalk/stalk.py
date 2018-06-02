@@ -4,6 +4,7 @@ import datetime
 import sys
 import re
 import datetime
+from dateutil import tz
 from prettytable import PrettyTable
 
 def jft(user):
@@ -44,34 +45,22 @@ def get_details(event):
 
 def check_for_fork(link, user):
     tukde = link.split('/')
-    # print(tukde[len(tukde)-2])
     if tukde[len(tukde)-2] == user:  
         response = requests.get(link)
         repo = response.json()
-        # print(repo["fork"])
         if not repo["fork"]:
             return True
         return False
     return True
 
 
-def get_time(string):
-    dt = string.split('T')
-    # date = dt[0]
-    time = dt[1][:-1]
-    return(time)
+def get_local_time(string):
+    local_time = convert_to_local(string)
+    tukde = local_time.split(' ')
+    samay = tukde[1].split('+')[0]
+    return samay
 
-
-def show_contri(user):
-    now = datetime.datetime.now()
-    today = str(now.strftime("%Y-%m-%d"))
-    # today = "2018-05-31"
-    link = "https://api.github.com/users/" + str(user) + "/events"
-    user_link = "https://api.github.com/users/" + str(user)
-
-    user_profile = requests.get(user_link)
-    profile = user_profile.json()
-
+def get_basic_info(profile):
     print("Name:", profile["name"])
     print("Company:", profile["company"])
     print("Followers:", profile["followers"])
@@ -79,30 +68,51 @@ def show_contri(user):
     print("Public Repos:", profile["public_repos"])
     print("Contributions Today: ")
 
+
+def convert_to_local(string):
+    from_zone = tz.tzutc()
+    to_zone = tz.tzlocal()
+    utc_stamp = datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=from_zone)
+    local_stamp = utc_stamp.astimezone(to_zone)
+    return(str(local_stamp))
+
+
+def show_contri(user):
+    now = datetime.datetime.now()
+    today = str(now.strftime("%Y-%m-%d"))
+    # today = "2018-06-02"
+    link = "https://api.github.com/users/" + str(user) + "/events"
+    user_link = "https://api.github.com/users/" + str(user)
+
+    user_profile = requests.get(user_link)
+    profile = user_profile.json()
+
+    get_basic_info(profile)
+
     response = requests.get(link)
     events = response.json()
     latest = []
     stars = []
     if response.status_code == 200:    
         for event in events:
-            if event["created_at"].startswith(today) and event["type"] != "IssueCommentEvent":
+            if convert_to_local(event["created_at"]).startswith(today) and event["type"] != "IssueCommentEvent":
                 if event["type"] == "WatchEvent":
                     stars.append(event)
                 elif check_for_fork(event["repo"]["url"], user):
                     latest.append(event)
     
     if latest:
-        table = PrettyTable(["Type", "Repository", "Details"])
+        table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in latest:
-            table.add_row([get_event(event["type"]), event["repo"]["name"], get_details(event)])
+            table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(event["created_at"]), get_details(event)])
         print(table)
     print(user + " have made " + str(len(latest)) + " public contribution(s) today.\n")
     
     print("Starred today: ")
     if stars:
-        star_table = PrettyTable(["Repository", "Language"])
+        star_table = PrettyTable(["Repository", "Language", "Time"])
         for event in stars:
-            star_table.add_row([event["repo"]["name"], get_details(event)])
+            star_table.add_row([event["repo"]["name"], get_details(event), get_local_time(event["created_at"])])
         print(star_table)
     return (user + " have starred " + str(len(stars)) + " repo(s) today.")
 

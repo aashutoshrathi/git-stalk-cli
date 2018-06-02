@@ -23,22 +23,29 @@ $ stalk anshumanv
   Following: 154
   Public Repos: 72
   Contributions Today:
-  +--------------+-----------------------+-----------------------------------------------------------------------+
-  |     Type     |       Repository      |                                Details                                |
-  +--------------+-----------------------+-----------------------------------------------------------------------+
-  | Pull Request | fossasia/chat.susi.ai |         Fixes #1287: Do not show themes option on other routes        |
-  |    Issues    | fossasia/chat.susi.ai | User email should be visible on all routes rather than the index page |
-  |    Issues    | fossasia/chat.susi.ai |        Themes option should only be available on the chat page        |
-  +--------------+-----------------------+-----------------------------------------------------------------------+
-  anshumanv have made 3 public contribution(s) today.
+  +--------------+-----------------------+----------+--------------------------------------------------------------------------+
+  |     Type     |       Repository      |   Time   |                                 Details                                  |
+  +--------------+-----------------------+----------+--------------------------------------------------------------------------+
+  | Pull Request | fossasia/chat.susi.ai | 18:44:38 |                          Simplify login Dialog                           |
+  | Pull Request | fossasia/chat.susi.ai | 11:27:35 | Fixes #1296: Resolve bug of settings menu item appearing on other routes |
+  |    Issues    | fossasia/chat.susi.ai | 09:59:25 |   BUG: Settings option is available on some pages for logged out users   |
+  | Pull Request | fossasia/chat.susi.ai | 00:11:11 |          Fixes 1288: User email should be visible on all routes          |
+  +--------------+-----------------------+----------+--------------------------------------------------------------------------+
+  anshumanv have made 4 public contribution(s) today.
 
   Starred today:
-  +---------------------+----------+
-  |      Repository     | Language |
-  +---------------------+----------+
-  | senorprogrammer/wtf |    Go    |
-  +---------------------+----------+
-  anshumanv have starred 1 repo(s) today.
+  +--------------------------------+------------+----------+
+  |           Repository           |  Language  |   Time   |
+  +--------------------------------+------------+----------+
+  |     ZachSaucier/Just-Read      | JavaScript | 23:42:25 |
+  |          reach/router          | JavaScript | 21:39:28 |
+  | pburtchaell/react-notification | JavaScript | 21:38:14 |
+  |       SevenOutman/Hubble       |    Vue     | 21:36:14 |
+  |   KyleAMathews/typography.js   | JavaScript | 21:36:02 |
+  |  aashutoshrathi/git-stalk-cli  |   Python   | 03:40:08 |
+  |     eamodio/vscode-gitlens     | TypeScript | 00:19:13 |
+  +--------------------------------+------------+----------+
+  anshumanv have starred 7 repo(s) today.
 ```
 
 ## Limitations
