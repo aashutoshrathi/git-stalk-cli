@@ -140,7 +140,6 @@ def show_help():
 def show_contri(user, arg=None):
     now = datetime.datetime.now()
     today = str(now.strftime("%Y-%m-%d"))
-    today = "2018-06-03"
     link = "https://api.github.com/users/" + str(user) + "/events"    
     response = requests.get(link)
     events = response.json()
