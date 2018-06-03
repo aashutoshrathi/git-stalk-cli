@@ -3,6 +3,7 @@ import requests
 import datetime
 import sys
 import re
+import os
 import datetime
 from dateutil import tz
 from prettytable import PrettyTable
@@ -129,12 +130,16 @@ def fill_data(user, today, events, latest, stars, other):
     return latest, stars, other
 
 
+def update():
+    os.system("pip install --upgrade git-stalk")
+
 def show_help():
     print("Usage: stalk [OPTIONS] username [USERNAME]")
     print("Options:\n  General Options:")
     print("    -h, --help                       Print this help text and exit")
     # print("    --version                        Print program version and exit")
     print("    -np                              Stalks a user without showing their profile")
+    print("    -U, --update                     Update this program to latest version. Make sure that you have sufficient permissions (run with sudo if needed)")
 
 
 def show_contri(user, arg=None):
@@ -164,6 +169,8 @@ def run():
     if len(sys.argv) > 1:
         if(sys.argv[1] == "--help" or sys.argv[1] == "-h"):
             show_help()
+        elif(sys.argv[1] == "--update" or sys.argv[1] == "-U"):
+            update()
         # elif(sys.argv[1] == "--version"):
         #     show_version()
         elif len(sys.argv) == 3:
