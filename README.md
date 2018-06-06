@@ -3,6 +3,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/git-stalk.svg)](https://pypi.org/project/git-stalk/)
 [![Build Status](https://travis-ci.com/aashutoshrathi/git-stalk-cli.svg?token=x5wHaKpXyy9apivkjrhr&branch=master)](https://travis-ci.com/aashutoshrathi/git-stalk-cli)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli?ref=badge_shield)
 
 A command line interface for checking your/peer's activity today.
 
@@ -57,6 +58,9 @@ $ stalk aashutoshrathi
   aashutoshrathi have starred 2 repo(s) today.
 
 ```
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli?ref=badge_large)
 
 ## Limitations
 
