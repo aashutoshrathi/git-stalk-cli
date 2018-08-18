@@ -1,10 +1,12 @@
 <p align="center"><img src="https://octodex.github.com/images/inspectocat.jpg" align="center" width="175"></p>
 <h1 align="center">git-stalk-cli</h1>
 
-[![PyPI](https://img.shields.io/pypi/v/git-stalk.svg?style=for-the-badge)](https://pypi.org/project/git-stalk/)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/git-stalk.svg?style=for-the-badge)
-![Travis (.com) branch](https://img.shields.io/travis/com/aashutoshrathi/git-stalk-cli/master.svg?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues/aashutoshrathi/git-stalk-cli.svg?style=for-the-badge)
+<p align="center">
+<a href="https://pypi.org/project/git-stalk/"><img src="https://img.shields.io/pypi/v/git-stalk.svg?style=for-the-badge" align="center"></a>
+<a href="https://pypi.org/project/git-stalk/"><img src="https://img.shields.io/pypi/pyversions/git-stalk.svg?style=for-the-badge" align="center"></a>
+<a href="https://travis-ci.com/aashutoshrathi/git-stalk-cli"><img src="https://img.shields.io/travis/com/aashutoshrathi/git-stalk-cli/master.svg?style=for-the-badge" align="center"></a>
+<a href="https://github.com/aashutoshrathi/git-stalk-cli/issues"><img src="https://img.shields.io/github/issues/aashutoshrathi/git-stalk-cli.svg?style=for-the-badge" align="center"></a>
+</p>
 
 A command line interface for checking your/peer's activity today.
 
