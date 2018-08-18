@@ -1,9 +1,10 @@
-# git-stalk-cli
+<p align="center"><img src="https://octodex.github.com/images/inspectocat.jpg" align="center" width="175"></p>
+<h1 align="center">git-stalk-cli</h1>
 
-
-[![PyPI](https://img.shields.io/pypi/v/git-stalk.svg)](https://pypi.org/project/git-stalk/)
-[![Build Status](https://travis-ci.com/aashutoshrathi/git-stalk-cli.svg?token=x5wHaKpXyy9apivkjrhr&branch=master)](https://travis-ci.com/aashutoshrathi/git-stalk-cli)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli?ref=badge_shield)
+[![PyPI](https://img.shields.io/pypi/v/git-stalk.svg?style=for-the-badge)](https://pypi.org/project/git-stalk/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/git-stalk.svg?style=for-the-badge)
+![Travis (.com) branch](https://img.shields.io/travis/com/aashutoshrathi/git-stalk-cli/master.svg?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/aashutoshrathi/git-stalk-cli.svg?style=for-the-badge)
 
 A command line interface for checking your/peer's activity today.
 
@@ -59,12 +60,20 @@ $ stalk aashutoshrathi
 
 ```
 
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli?ref=badge_large)
-
 ## Limitations
 
 Stalking too much might lead to "API Rate Limit Exceeded for your IP".
+
+## Author
+
+[Aashutosh Rathi](https://github.com/aashutoshrathi)
+
+<img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Faashutoshrathi%2Fgit-stalk-cli.svg?type=medium">
+
+[<img src="https://image.flaticon.com/icons/svg/185/185961.svg" width="35" padding="10">](https://twitter.com/AashutoshRathi)
+[<img src="https://image.flaticon.com/icons/svg/185/185964.svg" width="35" padding="10">](https://linkedin.com/in/aashutoshrathi)
+[<img src="https://image.flaticon.com/icons/svg/185/185981.svg" width="35" padding="10">](https://www.facebook.com/aashutoshrathi)
+[<img src="https://image.flaticon.com/icons/svg/985/985680.svg" width="35" padding="10">](https://www.paypal.me/AashutoshRathi)
 
 
 <p align="center"> Made from scratch by <a href="https://github.com/aashutoshrathi">Aashutosh Rathi</a> </p>
