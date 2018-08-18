@@ -7,8 +7,8 @@
 <a href="https://travis-ci.com/aashutoshrathi/git-stalk-cli"><img src="https://img.shields.io/travis/com/aashutoshrathi/git-stalk-cli/master.svg?style=for-the-badge" align="center"></a>
 <a href="https://github.com/aashutoshrathi/git-stalk-cli/issues"><img src="https://img.shields.io/github/issues/aashutoshrathi/git-stalk-cli.svg?style=for-the-badge" align="center"></a>
 </p>
-
-A command line interface for checking your/peer's activity today.
+<hr>
+<p align="center">A command line interface for checking your/peer's activity today.</p>
 
 
 ## Installation
