@@ -94,11 +94,15 @@ def convert_to_local(string):
     return(str(local_stamp))
 
 
-def get_contributions(user, latest, org=None):
+def get_contributions(user, latest, org=None, flag = False):
+    info = []
     print("Contributions Today: ")
     if latest:
         table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in latest:
+            temp = {'type':get_event(event["type"]), 'repository':event["repo"]["name"], 'time':get_local_time(
+                event["created_at"]), 'details':get_details(event)}
+            info.append(temp)
             repo_name = event["repo"]["name"]
             if org:
                 curr_org = ""
@@ -107,37 +111,47 @@ def get_contributions(user, latest, org=None):
                         break
                     curr_org += c
                 if curr_org == org:
-                    table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                        event["created_at"]), get_details(event)])
+                    table.add_row([temp['type'], temp['repository'], temp['time'], temp['details']])
             else:
-                table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                    event["created_at"]), get_details(event)])
+                table.add_row([temp['type'], temp['repository'], temp['time'], temp['details']])
         print(table)
     print(user + " have made " + str(len(latest)) +
           " public contribution(s) today.\n")
+    if flag:
+        return info
 
 
-def get_other_activity(user, other):
+def get_other_activity(user, other, flag = False):
+    info = []
     print("Other Activity today: ")
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
-            other_table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                event["created_at"]), get_details(event)])
+            temp = {'type':get_event(event["type"]), 'repository':event["repo"]["name"], 'time':get_local_time(
+                event["created_at"]), 'details':get_details(event)}
+            info.append(temp)
+            other_table.add_row([info['type'], info['repository'], info['time'], temp['details']])
         print(other_table)
     print(user + " have done " + str(len(other)) +
           " other public activit(y/ies) today.\n")
+    if flag:
+        return info
 
 
-def get_stars(user, stars):
+def get_stars(user, stars, flag = False):
+    info = []
     print("Starred today: ")
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for event in stars:
-            star_table.add_row([event["repo"]["name"], get_details(
-                event), get_local_time(event["created_at"])])
+            temp = {'repository':event["repo"]["name"], 'language':get_details(
+                event), 'time': get_local_time(event["created_at"])}
+            info.append(temp)
+            star_table.add_row([temp['repository'], temp['language'], temp['time']])
         print(star_table)
     print(user + " have starred " + str(len(stars)) + " repo(s) today.")
+    if flag:
+        return info
 
 
 def fill_data(user, today, events, latest, stars, other):
