@@ -9,9 +9,10 @@ import argparse
 from dateutil import tz
 from prettytable import PrettyTable
 
+github_uri = "https://api.github.com/users/"
 
 def jft(user):
-    user_link = "https://api.github.com/users/" + str(user)
+    user_link = github_uri + str(user)
     response = requests.get(user_link)
     return response.status_code
 
@@ -73,7 +74,7 @@ def get_local_time(string):
 
 
 def get_basic_info(user):
-    user_link = "https://api.github.com/users/" + str(user)
+    user_link = github_uri + str(user)
     user_profile = requests.get(user_link)
     profile = user_profile.json()
     print("Name:", profile["name"])
@@ -160,7 +161,7 @@ def show_contri(args=None):
     user = args["name"]
     now = datetime.datetime.now()
     today = str(now.strftime("%Y-%m-%d"))
-    link = "https://api.github.com/users/" + str(user) + "/events"
+    link = github_uri + str(user) + "/events"
     response = requests.get(link)
     events = response.json()
     latest = []
