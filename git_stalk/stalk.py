@@ -1,10 +1,7 @@
-import json
 import requests
 import datetime
-import sys
 import re
 import os
-import datetime
 import argparse
 from dateutil import tz
 from prettytable import PrettyTable
@@ -18,6 +15,7 @@ def jft(user):
 
 
 def get_event(string):
+    """Returns the event"""
     event = ""
     words = re.findall('[A-Z][^A-Z]*', string)
     for word in words:
@@ -33,6 +31,7 @@ def get_event(string):
 
 
 def get_details(event):
+    """Returns the details of the event according to the type of the event"""
     if event["type"] == "IssuesEvent":
         return event["payload"]["issue"]["title"]
     elif event["type"] == "IssueCommentEvent":
@@ -48,16 +47,21 @@ def get_details(event):
             if commit["distinct"]:
                 return commit["message"]
     elif event["type"] == "MemberEvent":
-        return "Added " + event["payload"]["member"]["login"] + " as collaborator"
+        return "Added {} as collaborator".format(
+            event["payload"]["member"]["login"]
+        )
     elif event["type"] == "ReleaseEvent":
-        return "Released binaries for version " + event["payload"]["release"]["tag_name"]
+        return "Released binaries for version {}".format(
+            event["payload"]["release"]["tag_name"]
+        )
     elif event["type"] == "ForkEvent":
         return "Forked " + event["repo"]["name"]
 
 
 def check_for_fork(link, user):
+    """Check wheather it is a forked"""
     tukde = link.split('/')
-    if tukde[len(tukde)-2] == user:
+    if tukde[len(tukde) - 2] == user:
         response = requests.get(link)
         repo = response.json()
         if not repo["fork"]:
@@ -67,6 +71,7 @@ def check_for_fork(link, user):
 
 
 def get_local_time(string):
+    """Returns the local time"""
     local_time = convert_to_local(string)
     tukde = local_time.split(' ')
     samay = tukde[1].split('+')[0]
@@ -87,6 +92,7 @@ def get_basic_info(user):
 
 
 def convert_to_local(string):
+    """Returns the local_stamp as string"""
     from_zone = tz.tzutc()
     to_zone = tz.tzlocal()
     utc_stamp = datetime.datetime.strptime(
@@ -96,6 +102,12 @@ def convert_to_local(string):
 
 
 def get_contributions(user, latest, org=None):
+    """
+        Traverses the latest array,
+        creates a table
+        if org argument is present only the repos which belong to the org is added to the table
+        and prints the table.
+    """
     print("Contributions Today: ")
     if latest:
         table = PrettyTable(["Type", "Repository", "Time", "Details"])
@@ -108,29 +120,50 @@ def get_contributions(user, latest, org=None):
                         break
                     curr_org += c
                 if curr_org == org:
-                    table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                        event["created_at"]), get_details(event)])
+                    table.add_row([
+                        get_event(event["type"]),
+                        event["repo"]["name"],
+                        get_local_time(event["created_at"]),
+                        get_details(event)
+                    ])
             else:
-                table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                    event["created_at"]), get_details(event)])
+                table.add_row([
+                    get_event(event["type"]),
+                    event["repo"]["name"],
+                    get_local_time(event["created_at"]),
+                    get_details(event)
+                ])
         print(table)
     print(user + " have made " + str(len(latest)) +
           " public contribution(s) today.\n")
 
 
 def get_other_activity(user, other):
+    """
+        Traverses the other array,   
+        creates a table
+        and prints the table.
+    """
     print("Other Activity today: ")
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
-            other_table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                event["created_at"]), get_details(event)])
+            other_table.add_row([
+                get_event(event["type"]), event["repo"]["name"],
+                get_local_time(event["created_at"]),
+                get_details(event),
+            ])
         print(other_table)
     print(user + " have done " + str(len(other)) +
           " other public activit(y/ies) today.\n")
 
 
 def get_stars(user, stars):
+    """
+        Traverses the stars array,
+        creates a table
+        and prints the table.
+    """
     print("Starred today: ")
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
@@ -142,11 +175,15 @@ def get_stars(user, stars):
 
 
 def fill_data(user, today, events, latest, stars, other):
+    """Traverses the events array and seperates individual data to latest, stars and other arrays"""
     for event in events:
-        if convert_to_local(event["created_at"]).startswith(today) and event["type"] != "IssueCommentEvent":
+        starts_today = convert_to_local(event["created_at"]).startswith(today)
+        event_type_issue_comment_event = event["type"] != "IssueCommentEvent"
+
+        if starts_today and event_type_issue_comment_event:
             if event["type"] == "WatchEvent":
                 stars.append(event)
-            elif event["type"] == "ForkEvent" or event["type"] == "MemberEvent":
+            elif event["type"] in ("ForkEvent", "MemberEvent"):
                 other.append(event)
             elif check_for_fork(event["repo"]["url"], user):
                 latest.append(event)
@@ -154,10 +191,12 @@ def fill_data(user, today, events, latest, stars, other):
 
 
 def update():
+    """Runs the upgrade command and upgrades git-stalk"""
     os.system("pip install --upgrade git-stalk")
 
 
 def show_contri(args=None):
+    """Sends a get request to github rest api and display data using the utility functions"""
     user = args["name"]
     now = datetime.datetime.now()
     today = str(now.strftime("%Y-%m-%d"))
@@ -171,10 +210,13 @@ def show_contri(args=None):
         latest, stars, other = fill_data(
             user, today, events, latest, stars, other)
     else:
-        print("Something went wrong, check your internet or username. \nUse stalk --help for Help")
+        print(
+            "Something went wrong, check your internet or username. \n"
+            "Use stalk --help for Help"
+        )
         return
 
-    if args["np"] == False:
+    if args["np"] is False:
         get_basic_info(user)
 
     if args["org"]:
@@ -187,11 +229,18 @@ def show_contri(args=None):
 
 
 def run():
+    """Parsing the command line arguments using argparse and calls the update or show_contri function as required"""
     ap = argparse.ArgumentParser()
     ap.add_argument("name", nargs='?', help="name of the user")
     ap.add_argument("--org", help="Organization Name")
     ap.add_argument(
-        "-U", "--update", action='store_true', help="Update this program to latest version. Make sure that you have sufficient permissions (run with sudo if needed)")
+        "-U", "--update",
+        action='store_true',
+        help=(
+            "Update this program to latest version. Make sure that you have"
+            " sufficient permissions (run with sudo if needed)"
+        )
+    )
     ap.add_argument("-np", action='store_true',
                     help="Stalks a user without showing their profile")
     args = vars(ap.parse_args())
@@ -204,8 +253,14 @@ def run():
         else:
             show_contri(args)
     else:
-        print("Enter a valid username to stalk. \nFor eg: stalk aashutoshrathi \nOr you can type stalk --help for help")
+        print(
+            "Enter a valid username to stalk. \n"
+            "For eg: stalk aashutoshrathi \n"
+            "Or you can type stalk --help for help"
+        )
 
 
 if __name__ == '__main__':
     run()
+    
+    
