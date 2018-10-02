@@ -206,6 +206,7 @@ def show_contri(args=None):
     latest = []
     stars = []
     other = []
+
     if response.status_code == 200:
         latest, stars, other = fill_data(
             user, today, events, latest, stars, other)
@@ -215,6 +216,10 @@ def show_contri(args=None):
             .format(str(user))
         )
         return
+    elif response.status_code == 403:
+        print(
+            "API rate limit exceeded, try again later."
+        )
     else:
         print(
             "Something went wrong, please check your internet connection \n"
