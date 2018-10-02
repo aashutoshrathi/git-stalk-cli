@@ -140,7 +140,7 @@ def get_contributions(user, latest, org=None):
 
 def get_other_activity(user, other):
     """
-        Traverses the other array,   
+        Traverses the other array,
         creates a table
         and prints the table.
     """
@@ -209,9 +209,15 @@ def show_contri(args=None):
     if response.status_code == 200:
         latest, stars, other = fill_data(
             user, today, events, latest, stars, other)
+    elif response.status_code == 404:
+        print(
+            "User with username {0} does not exists, please check and try again"
+            .format(str(user))
+        )
+        return
     else:
         print(
-            "Something went wrong, check your internet or username. \n"
+            "Something went wrong, please check your internet connection \n"
             "Use stalk --help for Help"
         )
         return
@@ -262,5 +268,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-    
-    
