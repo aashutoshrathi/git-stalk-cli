@@ -17,6 +17,7 @@ def jft(user):
 
 
 def get_event(string):
+    """Returns the event"""
     event = ""
     words = re.findall('[A-Z][^A-Z]*', string)
     for word in words:
@@ -32,6 +33,7 @@ def get_event(string):
 
 
 def get_details(event):
+    """Returns the details of the event according to the type of the event"""
     if event["type"] == "IssuesEvent":
         return event["payload"]["issue"]["title"]
     elif event["type"] == "IssueCommentEvent":
@@ -55,6 +57,7 @@ def get_details(event):
 
 
 def check_for_fork(link, user):
+    """Check wheather it is a forked"""
     tukde = link.split('/')
     if tukde[len(tukde)-2] == user:
         response = requests.get(link)
@@ -66,6 +69,7 @@ def check_for_fork(link, user):
 
 
 def get_local_time(string):
+    """Returns the local time"""
     local_time = convert_to_local(string)
     tukde = local_time.split(' ')
     samay = tukde[1].split('+')[0]
@@ -73,6 +77,7 @@ def get_local_time(string):
 
 
 def get_basic_info(user):
+    """Prints the user's basic info"""
     user_link = "https://api.github.com/users/" + str(user)
     user_profile = requests.get(user_link)
     profile = user_profile.json()
@@ -86,6 +91,7 @@ def get_basic_info(user):
 
 
 def convert_to_local(string):
+    """Returns the local_stamp as string"""
     from_zone = tz.tzutc()
     to_zone = tz.tzlocal()
     utc_stamp = datetime.datetime.strptime(
@@ -95,6 +101,12 @@ def convert_to_local(string):
 
 
 def get_contributions(user, latest, org=None):
+    """
+        Traverses the latest array,
+        creates a table
+        if org argument is present only the repos which belong to the org is added to the table
+        and prints the table.
+    """
     print("Contributions Today: ")
     if latest:
         table = PrettyTable(["Type", "Repository", "Time", "Details"])
@@ -118,6 +130,11 @@ def get_contributions(user, latest, org=None):
 
 
 def get_other_activity(user, other):
+    """
+        Traverses the other array,   
+        creates a table
+        and prints the table.
+    """
     print("Other Activity today: ")
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
@@ -130,6 +147,11 @@ def get_other_activity(user, other):
 
 
 def get_stars(user, stars):
+    """
+        Traverses the stars array,
+        creates a table
+        and prints the table.
+    """
     print("Starred today: ")
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
@@ -141,6 +163,7 @@ def get_stars(user, stars):
 
 
 def fill_data(user, today, events, latest, stars, other):
+    """Traverses the events array and seperates individual data to latest, stars and other arrays"""
     for event in events:
         if convert_to_local(event["created_at"]).startswith(today) and event["type"] != "IssueCommentEvent":
             if event["type"] == "WatchEvent":
@@ -153,10 +176,12 @@ def fill_data(user, today, events, latest, stars, other):
 
 
 def update():
+    """Runs the upgrade command and upgrades git-stalk"""
     os.system("pip install --upgrade git-stalk")
 
 
 def show_contri(args=None):
+    """Sends a get request to github rest api and display data using the utility functions"""
     user = args["name"]
     now = datetime.datetime.now()
     today = str(now.strftime("%Y-%m-%d"))
@@ -186,6 +211,7 @@ def show_contri(args=None):
 
 
 def run():
+    """Parsing the command line arguments using argparse and calls the update or show_contri function as required"""
     ap = argparse.ArgumentParser()
     ap.add_argument("name", nargs='?', help="name of the user")
     ap.add_argument("--org", help="Organization Name")
@@ -208,3 +234,5 @@ def run():
 
 if __name__ == '__main__':
     run()
+    
+    
