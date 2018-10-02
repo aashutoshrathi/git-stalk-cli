@@ -20,8 +20,8 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ),
     entry_points={
-		'console_scripts': [
-			'stalk = git_stalk.stalk:run',
-		],
-	}
+        'console_scripts': [
+            'stalk = git_stalk.stalk:run',
+        ],
+    }
 )
