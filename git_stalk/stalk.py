@@ -47,9 +47,13 @@ def get_details(event):
             if commit["distinct"]:
                 return commit["message"]
     elif event["type"] == "MemberEvent":
-        return "Added " + event["payload"]["member"]["login"] + " as collaborator"
+        return "Added {} as collaborator".format(
+            event["payload"]["member"]["login"]
+        )
     elif event["type"] == "ReleaseEvent":
-        return "Released binaries for version " + event["payload"]["release"]["tag_name"]
+        return "Released binaries for version {}".format(
+            event["payload"]["release"]["tag_name"]
+        )
     elif event["type"] == "ForkEvent":
         return "Forked " + event["repo"]["name"]
 
@@ -117,11 +121,19 @@ def get_contributions(user, latest, org=None):
                         break
                     curr_org += c
                 if curr_org == org:
-                    table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                        event["created_at"]), get_details(event)])
+                    table.add_row([
+                        get_event(event["type"]),
+                        event["repo"]["name"],
+                        get_local_time(event["created_at"]),
+                        get_details(event)
+                    ])
             else:
-                table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                    event["created_at"]), get_details(event)])
+                table.add_row([
+                    get_event(event["type"]),
+                    event["repo"]["name"],
+                    get_local_time(event["created_at"]),
+                    get_details(event)
+                ])
         print(table)
     print(user + " have made " + str(len(latest)) +
           " public contribution(s) today.\n")
@@ -137,8 +149,11 @@ def get_other_activity(user, other):
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
-            other_table.add_row([get_event(event["type"]), event["repo"]["name"], get_local_time(
-                event["created_at"]), get_details(event)])
+            other_table.add_row([
+                get_event(event["type"]), event["repo"]["name"],
+                get_local_time(event["created_at"]),
+                get_details(event),
+            ])
         print(other_table)
     print(user + " have done " + str(len(other)) +
           " other public activit(y/ies) today.\n")
@@ -163,10 +178,13 @@ def get_stars(user, stars):
 def fill_data(user, today, events, latest, stars, other):
     """Traverses the events array and seperates individual data to latest, stars and other arrays"""
     for event in events:
-        if convert_to_local(event["created_at"]).startswith(today) and event["type"] != "IssueCommentEvent":
+        starts_today = convert_to_local(event["created_at"]).startswith(today)
+        event_type_issue_comment_event = event["type"] != "IssueCommentEvent"
+
+        if starts_today and event_type_issue_comment_event:
             if event["type"] == "WatchEvent":
                 stars.append(event)
-            elif event["type"] == "ForkEvent" or event["type"] == "MemberEvent":
+            elif event["type"] in ("ForkEvent", "MemberEvent"):
                 other.append(event)
             elif check_for_fork(event["repo"]["url"], user):
                 latest.append(event)
@@ -193,7 +211,10 @@ def show_contri(args=None):
         latest, stars, other = fill_data(
             user, today, events, latest, stars, other)
     else:
-        print("Something went wrong, check your internet or username. \nUse stalk --help for Help")
+        print(
+            "Something went wrong, check your internet or username. \n"
+            "Use stalk --help for Help"
+        )
         return
 
     if not args["np"]:
@@ -229,7 +250,11 @@ def run():
         else:
             show_contri(args)
     else:
-        print("Enter a valid username to stalk. \nFor eg: stalk aashutoshrathi \nOr you can type stalk --help for help")
+        print(
+            "Enter a valid username to stalk. \n"
+            "For eg: stalk aashutoshrathi \n"
+            "Or you can type stalk --help for help"
+        )
 
 
 if __name__ == '__main__':
