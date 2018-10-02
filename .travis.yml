@@ -2,8 +2,11 @@ language: python
 python:
   - "2.7"
   - "3.6"
-
-script: pytest
+script:
+- pytest --flakes
+- pytest --pep8
+- pytest --mccabe -m mccabe
+- pytest --pylint -m pylint
 notifications:
   email: false
   webhooks: https://fathomless-fjord-24024.herokuapp.com/notify
