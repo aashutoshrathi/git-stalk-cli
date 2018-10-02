@@ -129,7 +129,7 @@ def get_contributions(user, latest, org=None):
 
 def get_other_activity(user, other):
     """
-        Traverses the other array,   
+        Traverses the other array,
         creates a table
         and prints the table.
     """
@@ -234,5 +234,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-    
-    
