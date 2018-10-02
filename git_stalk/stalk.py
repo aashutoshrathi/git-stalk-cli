@@ -1,11 +1,9 @@
-import json
-import requests
-import datetime
-import sys
-import re
-import os
-import datetime
 import argparse
+import datetime
+import os
+import re
+
+import requests
 from dateutil import tz
 from prettytable import PrettyTable
 
@@ -56,7 +54,7 @@ def get_details(event):
 
 def check_for_fork(link, user):
     tukde = link.split('/')
-    if tukde[len(tukde)-2] == user:
+    if tukde[len(tukde) - 2] == user:
         response = requests.get(link)
         repo = response.json()
         if not repo["fork"]:
@@ -91,7 +89,7 @@ def convert_to_local(string):
     utc_stamp = datetime.datetime.strptime(
         string, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=from_zone)
     local_stamp = utc_stamp.astimezone(to_zone)
-    return(str(local_stamp))
+    return str(local_stamp)
 
 
 def get_contributions(user, latest, org=None):
@@ -173,7 +171,7 @@ def show_contri(args=None):
         print("Something went wrong, check your internet or username. \nUse stalk --help for Help")
         return
 
-    if args["np"] == False:
+    if not args["np"]:
         get_basic_info(user)
 
     if args["org"]:
@@ -190,7 +188,11 @@ def run():
     ap.add_argument("name", nargs='?', help="name of the user")
     ap.add_argument("--org", help="Organization Name")
     ap.add_argument(
-        "-U", "--update", action='store_true', help="Update this program to latest version. Make sure that you have sufficient permissions (run with sudo if needed)")
+        "-U", "--update",
+        action='store_true',
+        help="Update this program to latest version. "
+             "Make sure that you have sufficient permissions (run with sudo if needed)"
+    )
     ap.add_argument("-np", action='store_true',
                     help="Stalks a user without showing their profile")
     args = vars(ap.parse_args())
@@ -198,8 +200,6 @@ def run():
     if len(args) > 1:
         if args["update"]:
             update()
-        # elif(sys.argv[1] == "--version"):
-        #     show_version()
         else:
             show_contri(args)
     else:
