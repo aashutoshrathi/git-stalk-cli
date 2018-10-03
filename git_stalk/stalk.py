@@ -227,6 +227,16 @@ def show_contri(args=None):
     latest = []
     stars = []
     other = []
+    if args["since"] and args["until"]:
+        since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+        until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+        events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
+    elif args["since"]:
+        since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+        events = filter_since_until_dates(events, since_date=since_date)
+    elif args["until"]:
+        until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+        events = filter_since_until_dates(events, until_date=until_date)
     if response.status_code == 200:
         latest, stars, other = fill_data(
             user, today, events, latest, stars, other)
