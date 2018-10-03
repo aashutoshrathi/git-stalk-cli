@@ -195,6 +195,27 @@ def update():
     os.system("pip install --upgrade git-stalk")
 
 
+def filter_since_until_dates(events, since_date=None, until_date=None):
+    filtered_events = []
+    if since_date and until_date:
+        for e in events:
+            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
+            if created_at >= since_date and created_at <= until_date:
+                filtered_events.append(e)
+    elif since_date:
+        for e in events:
+            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
+            if created_at >= since_date:
+                filtered_events.append(e)
+            else:
+                break
+    elif until_date:
+        for e in events:
+            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
+            if created_at <= until_date:
+                filtered_events.append(e)
+    return filtered_events
+
 def show_contri(args=None):
     """Sends a get request to github rest api and display data using the utility functions"""
     user = args["name"]
@@ -243,6 +264,8 @@ def run():
     )
     ap.add_argument("-np", action='store_true',
                     help="Stalks a user without showing their profile")
+    ap.add_argument("--since", help="Take into account only events since date. Date format MM-DD-YYYY")
+    ap.add_argument("--until", help="Take into account only events after date. Date format MM-DD-YYYY")
     args = vars(ap.parse_args())
 
     if len(args) > 1:
