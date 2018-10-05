@@ -174,13 +174,27 @@ def get_stars(user, stars):
     print(user + " have starred " + str(len(stars)) + " repo(s) today.")
 
 
-def fill_data(user, today, events, latest, stars, other):
+def fill_todays_data(user, today, events, latest, stars, other):
     """Traverses the events array and seperates individual data to latest, stars and other arrays"""
     for event in events:
         starts_today = convert_to_local(event["created_at"]).startswith(today)
         event_type_issue_comment_event = event["type"] != "IssueCommentEvent"
 
         if starts_today and event_type_issue_comment_event:
+            if event["type"] == "WatchEvent":
+                stars.append(event)
+            elif event["type"] in ("ForkEvent", "MemberEvent"):
+                other.append(event)
+            elif check_for_fork(event["repo"]["url"], user):
+                latest.append(event)
+    return latest, stars, other
+
+def fill_dated_data(user, events, latest, stars, other):
+    """Traverses the events array and seperates individual data to latest, stars and other arrays"""
+    for event in events:
+        event_type_issue_comment_event = event["type"] != "IssueCommentEvent"
+
+        if event_type_issue_comment_event:
             if event["type"] == "WatchEvent":
                 stars.append(event)
             elif event["type"] in ("ForkEvent", "MemberEvent"):
@@ -196,6 +210,7 @@ def update():
 
 
 def filter_since_until_dates(events, since_date=None, until_date=None):
+    """Filters the events based on since and until dates"""
     filtered_events = []
     if since_date and until_date:
         for e in events:
@@ -238,8 +253,12 @@ def show_contri(args=None):
         until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
         events = filter_since_until_dates(events, until_date=until_date)
     if response.status_code == 200:
-        latest, stars, other = fill_data(
-            user, today, events, latest, stars, other)
+        if 'since_date' in vars() or 'until_date' in vars():
+            latest, stars, other = fill_dated_data(
+            user, events, latest, stars, other)
+        else:
+            latest, stars, other = fill_todays_data(
+                user, today, events, latest, stars, other)
     else:
         print(
             "Something went wrong, check your internet or username. \n"
