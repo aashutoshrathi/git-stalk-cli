@@ -8,6 +8,15 @@ from prettytable import PrettyTable
 
 github_uri = "https://api.github.com/users/"
 
+
+def validate_datetime(date_text):
+    """Validates date entered by user"""
+    try:
+        return datetime.datetime.strptime(date_text, '%Y-%m-%d')
+    except ValueError:
+        raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+
+
 def jft(user):
     user_link = github_uri + str(user)
     response = requests.get(user_link)
@@ -101,14 +110,14 @@ def convert_to_local(string):
     return(str(local_stamp))
 
 
-def get_contributions(user, latest, org=None):
+def get_contributions(user, latest, org=None, date_text="today"):
     """
         Traverses the latest array,
         creates a table
         if org argument is present only the repos which belong to the org is added to the table
         and prints the table.
     """
-    print("Contributions Today: ")
+    print("Contributions " + date_text + ": ")
     if latest:
         table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in latest:
@@ -135,16 +144,16 @@ def get_contributions(user, latest, org=None):
                 ])
         print(table)
     print(user + " have made " + str(len(latest)) +
-          " public contribution(s) today.\n")
+          " public contribution(s) " + date_text + ".\n")
 
 
-def get_other_activity(user, other):
+def get_other_activity(user, other, date_text="today"):
     """
         Traverses the other array,   
         creates a table
         and prints the table.
     """
-    print("Other Activity today: ")
+    print("Other Activity " + date_text + ": ")
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
@@ -155,32 +164,33 @@ def get_other_activity(user, other):
             ])
         print(other_table)
     print(user + " have done " + str(len(other)) +
-          " other public activit(y/ies) today.\n")
+          " other public activit(y/ies) " + date_text + ".\n")
 
 
-def get_stars(user, stars):
+def get_stars(user, stars, date_text):
     """
         Traverses the stars array,
         creates a table
         and prints the table.
     """
-    print("Starred today: ")
+    print("Starred " + date_text + ": ")
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for event in stars:
             star_table.add_row([event["repo"]["name"], get_details(
                 event), get_local_time(event["created_at"])])
         print(star_table)
-    print(user + " have starred " + str(len(stars)) + " repo(s) today.")
+    print(user + " have starred " + str(len(stars)) + " repo(s) " +
+          date_text + ".")
 
 
-def fill_data(user, today, events, latest, stars, other):
+def fill_data(user, day, events, latest, stars, other):
     """Traverses the events array and seperates individual data to latest, stars and other arrays"""
     for event in events:
-        starts_today = convert_to_local(event["created_at"]).startswith(today)
+        starts_at_date = convert_to_local(event["created_at"]).startswith(day)
         event_type_issue_comment_event = event["type"] != "IssueCommentEvent"
 
-        if starts_today and event_type_issue_comment_event:
+        if starts_at_date and event_type_issue_comment_event:
             if event["type"] == "WatchEvent":
                 stars.append(event)
             elif event["type"] in ("ForkEvent", "MemberEvent"):
@@ -195,20 +205,36 @@ def update():
     os.system("pip install --upgrade git-stalk")
 
 
+def fetch_events(link):
+    """Fetch data including pagination. Github API paginates until 300 results,
+    that means we can have until 10 pages per request."""
+    events = []
+    for i in range(1, 10):
+        current_page = requests.get(link + "?page=" + str(i))
+        if current_page.status_code != 200 or current_page.text == '[]':
+            break
+        events += current_page.json()
+    return events
+
+
 def show_contri(args=None):
     """Sends a get request to github rest api and display data using the utility functions"""
     user = args["name"]
-    now = datetime.datetime.now()
-    today = str(now.strftime("%Y-%m-%d"))
+    if args["date"]:
+        day = validate_datetime(args["date"])
+        date_text = "at " + args["date"]
+    else:
+        day = datetime.datetime.now()
+        date_text = "today"
+    day_str = str(day.strftime("%Y-%m-%d"))
     link = github_uri + str(user) + "/events"
-    response = requests.get(link)
-    events = response.json()
+    events = fetch_events(link)
     latest = []
     stars = []
     other = []
-    if response.status_code == 200:
+    if events:
         latest, stars, other = fill_data(
-            user, today, events, latest, stars, other)
+            user, day_str, events, latest, stars, other)
     else:
         print(
             "Something went wrong, check your internet or username. \n"
@@ -220,12 +246,12 @@ def show_contri(args=None):
         get_basic_info(user)
 
     if args["org"]:
-        get_contributions(user, latest, args["org"])
+        get_contributions(user, latest, args["org"], date_text)
     else:
-        get_contributions(user, latest)
+        get_contributions(user, latest, date_text=date_text)
 
-    get_other_activity(user, other)
-    get_stars(user, stars)
+    get_other_activity(user, other, date_text)
+    get_stars(user, stars, date_text)
 
 
 def run():
@@ -241,6 +267,10 @@ def run():
             " sufficient permissions (run with sudo if needed)"
         )
     )
+    ap.add_argument("--date",
+                    help="Filter events in the select date (format YYYY-MM-DD)"
+                    " whithin the past 90 days."
+                    )
     ap.add_argument("-np", action='store_true',
                     help="Stalks a user without showing their profile")
     args = vars(ap.parse_args())
@@ -248,8 +278,6 @@ def run():
     if len(args) > 1:
         if args["update"]:
             update()
-        # elif(sys.argv[1] == "--version"):
-        #     show_version()
         else:
             show_contri(args)
     else:
@@ -262,5 +290,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-    
-    
