@@ -11,9 +11,15 @@ All notable changes to this project will be documented in this file.
 
 ## [1.0.6] - 2018-10-03
 
+### Updated
+
+- Using global variable for URI from @bossbossk20
+- Throw error for nonexisting users from @Khukhuna
+
 ### Added
 
 - Date arguements for --until and --from by @bossbossk20
+- Docstrings
 
 ## [1.0.4 and 1.0.5] - 2018-10-02
 
@@ -21,6 +27,8 @@ All notable changes to this project will be documented in this file.
 
 - GIF added to README by @NefixEstarda
 - Telegram webhook to Travis by @aashutoshrathi
+- Python3.5
+
 
 ## [1.0.3] - 2018-10-02
 
@@ -39,6 +47,8 @@ All notable changes to this project will be documented in this file.
 ### Updated
 
 - View of tables and partitioned stars section.
+- Centered badges and description
+- Updated Readme
 
 ## [0.0.4] - 2018-06-06
 
