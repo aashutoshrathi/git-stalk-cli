@@ -3,10 +3,13 @@ import datetime
 import re
 import os
 import argparse
+from collections import namedtuple
 from dateutil import tz
 from prettytable import PrettyTable
 
 github_uri = "https://api.github.com/users/"
+
+StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
 
 def jft(user):
     user_link = github_uri + str(user)
@@ -18,16 +21,14 @@ def get_event(string):
     """Returns the event"""
     event = ""
     words = re.findall('[A-Z][^A-Z]*', string)
-    for word in words:
-        event += word
-        event += " "
-    if event == "Pull Request Review Comment Event ":
-        event = "PR Review Event "
-    if event == "Watch Event ":
-        event = "Starred Event "
-    if event == "Create Event ":
-        event = "Commit Event "
-    return event[:-7]
+    event = " ".join(words)
+    if event == "Pull Request Review Comment Event":
+        event = "PR Review Event"
+    if event == "Watch Event":
+        event = "Starred Event"
+    if event == "Create Event":
+        event = "Commit Event"
+    return event[:-6]
 
 
 def get_details(event):
@@ -36,10 +37,6 @@ def get_details(event):
         return event["payload"]["issue"]["title"]
     elif event["type"] == "IssueCommentEvent":
         return event["payload"]["comment"]["body"]
-    elif event["type"] == "WatchEvent":
-        response = requests.get(event["repo"]["url"])
-        repo = response.json()
-        return repo["language"]
     elif event["type"] == "PullRequestEvent":
         return event["payload"]["pull_request"]["title"]
     elif event["type"] == "PushEvent":
@@ -158,7 +155,7 @@ def get_other_activity(user, other):
           " other public activit(y/ies) today.\n")
 
 
-def get_stars(user, stars):
+def display_stars(user, stars):
     """
         Traverses the stars array,
         creates a table
@@ -167,9 +164,8 @@ def get_stars(user, stars):
     print("Starred today: ")
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
-        for event in stars:
-            star_table.add_row([event["repo"]["name"], get_details(
-                event), get_local_time(event["created_at"])])
+        for starred_repo in stars:
+            star_table.add_row([starred_repo.name, starred_repo.language, starred_repo.time])
         print(star_table)
     print(user + " have starred " + str(len(stars)) + " repo(s) today.")
 
@@ -182,12 +178,21 @@ def fill_data(user, today, events, latest, stars, other):
 
         if starts_today and event_type_issue_comment_event:
             if event["type"] == "WatchEvent":
-                stars.append(event)
+                stars.append(create_star(event))
             elif event["type"] in ("ForkEvent", "MemberEvent"):
                 other.append(event)
             elif check_for_fork(event["repo"]["url"], user):
                 latest.append(event)
     return latest, stars, other
+
+def get_language_for_repo(url):
+    response = requests.get(url)
+    repo = response.json()
+    return repo['language']
+
+def create_star(event):
+    language = get_language_for_repo(event['repo']['url'])
+    return StarredRepo(name=event['repo']['name'], language=language, time=get_local_time(event['created_at']))
 
 
 def update():
@@ -236,7 +241,7 @@ def show_contri(args=None):
         get_contributions(user, latest)
 
     get_other_activity(user, other)
-    get_stars(user, stars)
+    display_stars(user, stars)
 
 
 def run():
