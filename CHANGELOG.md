@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.8] - 2018-10-10
+
+### Added
+
+- Added Starred repo tuple by @jeffreyrack.
+- String formatting instead of concatination by @nityanandagohain.
+
+
 ## [1.0.7] - 2018-10-07
 
 ### Added
@@ -14,11 +22,11 @@ All notable changes to this project will be documented in this file.
 ### Updated
 
 - Using global variable for URI from @bossbossk20
-- Throw error for nonexisting users from @Khukhuna
+- Throw error for non existing users from @Khukhuna
 
 ### Added
 
-- Date arguements for --until and --from by @bossbossk20
+- Date arguments for --until and --from by @bossbossk20
 - Docstrings
 
 ## [1.0.4 and 1.0.5] - 2018-10-02
@@ -26,7 +34,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - GIF added to README by @NefixEstarda
-- Telegram webhook to Travis by @aashutoshrathi
+- Telegram web hook to Travis by @aashutoshrathi
 - Python3.5
 
 
