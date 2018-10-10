@@ -7,8 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Added Starred repo tuple by @jeffreyrack.
-- String formatting instead of concatination by @nityanandagohain.
-
+- String formatting instead of concatenation by @nityanandagohain.
 
 ## [1.0.7] - 2018-10-07
 
