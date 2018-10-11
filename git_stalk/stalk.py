@@ -170,7 +170,7 @@ def display_stars(user, stars):
     print("{} have starred {} repo(s) today.".format(user, str(len(stars))))
 
 
-def fill_data(user, today, events, latest, stars, other):
+def fill_todays_data(user, today, events, latest, stars, other):
     """Traverses the events array and seperates individual data to latest, stars and other arrays"""
     for event in events:
         starts_today = convert_to_local(event["created_at"]).startswith(today)
@@ -185,11 +185,28 @@ def fill_data(user, today, events, latest, stars, other):
                 latest.append(event)
     return latest, stars, other
 
+
+def fill_dated_data(user, events, latest, stars, other):
+    """Traverses the events array and seperates individual data to latest, stars and other arrays"""
+    for event in events:
+        event_type_issue_comment_event = event["type"] != "IssueCommentEvent"
+
+        if event_type_issue_comment_event:
+            if event["type"] == "WatchEvent":
+                stars.append(event)
+            elif event["type"] in ("ForkEvent", "MemberEvent"):
+                other.append(event)
+            elif check_for_fork(event["repo"]["url"], user):
+                latest.append(event)
+    return latest, stars, other
+
+  
 def get_language_for_repo(url):
     response = requests.get(url)
     repo = response.json()
     return repo['language']
 
+  
 def create_star(event):
     language = get_language_for_repo(event['repo']['url'])
     return StarredRepo(name=event['repo']['name'], language=language, time=get_local_time(event['created_at']))
@@ -200,6 +217,29 @@ def update():
     os.system("pip install --upgrade git-stalk")
 
 
+def filter_since_until_dates(events, since_date=None, until_date=None):
+    """Filters the events based on since and until dates"""
+    filtered_events = []
+    if since_date and until_date:
+        for e in events:
+            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
+            if created_at >= since_date and created_at <= until_date:
+                filtered_events.append(e)
+    elif since_date:
+        for e in events:
+            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
+            if created_at >= since_date:
+                filtered_events.append(e)
+            else:
+                break
+    elif until_date:
+        for e in events:
+            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
+            if created_at <= until_date:
+                filtered_events.append(e)
+    return filtered_events
+
+  
 def show_contri(args=None):
     """Sends a get request to github rest api and display data using the utility functions"""
     user = args["name"]
@@ -211,10 +251,24 @@ def show_contri(args=None):
     latest = []
     stars = []
     other = []
-
     if response.status_code == 200:
-        latest, stars, other = fill_data(
-            user, today, events, latest, stars, other)
+        if args["since"] and args["until"]:
+            since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+            until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+            events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
+        elif args["since"]:
+            since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+            events = filter_since_until_dates(events, since_date=since_date)
+        elif args["until"]:
+            until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+            events = filter_since_until_dates(events, until_date=until_date)
+        if response.status_code == 200:
+            if 'since_date' in vars() or 'until_date' in vars():
+                latest, stars, other = fill_dated_data(
+                user, events, latest, stars, other)
+            else:
+                latest, stars, other = fill_todays_data(
+                    user, today, events, latest, stars, other)
     elif response.status_code == 404:
         print(
             "User with username {0} does not exists, please check and try again"
@@ -225,6 +279,7 @@ def show_contri(args=None):
         print(
             "API rate limit exceeded, try again later."
         )
+
     else:
         print(
             "Something went wrong, please check your internet connection \n"
@@ -259,6 +314,8 @@ def run():
     )
     ap.add_argument("-np", action='store_true',
                     help="Stalks a user without showing their profile")
+    ap.add_argument("--since", help="Take into account only events since date. Date format MM-DD-YYYY")
+    ap.add_argument("--until", help="Take into account only events after date. Date format MM-DD-YYYY")
     args = vars(ap.parse_args())
 
     if len(args) > 1:
