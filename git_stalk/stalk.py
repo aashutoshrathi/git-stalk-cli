@@ -86,6 +86,8 @@ def get_basic_info(user):
     print("Followers:", profile["followers"])
     print("Following:", profile["following"])
     print("Public Repos:", profile["public_repos"])
+    print ("Public Gists:",profile["public_gists"])
+    print("Open for hiring:",profile["hireable"])
     print()
 
 
