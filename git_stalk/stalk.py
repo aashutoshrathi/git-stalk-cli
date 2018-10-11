@@ -3,13 +3,16 @@ import datetime
 import re
 import os
 import argparse
+from collections import namedtuple
 from dateutil import tz
 from prettytable import PrettyTable
 
 github_uri = "https://api.github.com/users/"
 
+StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
+
 def jft(user):
-    user_link = github_uri + str(user)
+    user_link = "{}{}".format(github_uri, str(user))
     response = requests.get(user_link)
     return response.status_code
 
@@ -18,16 +21,14 @@ def get_event(string):
     """Returns the event"""
     event = ""
     words = re.findall('[A-Z][^A-Z]*', string)
-    for word in words:
-        event += word
-        event += " "
-    if event == "Pull Request Review Comment Event ":
-        event = "PR Review Event "
-    if event == "Watch Event ":
-        event = "Starred Event "
-    if event == "Create Event ":
-        event = "Commit Event "
-    return event[:-7]
+    event = " ".join(words)
+    if event == "Pull Request Review Comment Event":
+        event = "PR Review Event"
+    if event == "Watch Event":
+        event = "Starred Event"
+    if event == "Create Event":
+        event = "Commit Event"
+    return event[:-6]
 
 
 def get_details(event):
@@ -36,10 +37,6 @@ def get_details(event):
         return event["payload"]["issue"]["title"]
     elif event["type"] == "IssueCommentEvent":
         return event["payload"]["comment"]["body"]
-    elif event["type"] == "WatchEvent":
-        response = requests.get(event["repo"]["url"])
-        repo = response.json()
-        return repo["language"]
     elif event["type"] == "PullRequestEvent":
         return event["payload"]["pull_request"]["title"]
     elif event["type"] == "PushEvent":
@@ -79,7 +76,8 @@ def get_local_time(string):
 
 
 def get_basic_info(user):
-    user_link = github_uri + str(user)
+    """Prints the user's basic info"""
+    user_link = "{}{}".format(github_uri, str(user))
     user_profile = requests.get(user_link)
     profile = user_profile.json()
     print("Name:", profile["name"])
@@ -134,13 +132,13 @@ def get_contributions(user, latest, org=None):
                     get_details(event)
                 ])
         print(table)
-    print(user + " have made " + str(len(latest)) +
-          " public contribution(s) today.\n")
+    print("{} have made {} public contribution(s) today.\n".format(
+        user, str(len(latest))))
 
 
 def get_other_activity(user, other):
     """
-        Traverses the other array,   
+        Traverses the other array,
         creates a table
         and prints the table.
     """
@@ -154,11 +152,10 @@ def get_other_activity(user, other):
                 get_details(event),
             ])
         print(other_table)
-    print(user + " have done " + str(len(other)) +
-          " other public activit(y/ies) today.\n")
+    print("{} have done {} other public activit(y/ies) today.\n".format(user, str(len(other))))
 
 
-def get_stars(user, stars):
+def display_stars(user, stars):
     """
         Traverses the stars array,
         creates a table
@@ -167,11 +164,10 @@ def get_stars(user, stars):
     print("Starred today: ")
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
-        for event in stars:
-            star_table.add_row([event["repo"]["name"], get_details(
-                event), get_local_time(event["created_at"])])
+        for starred_repo in stars:
+            star_table.add_row([starred_repo.name, starred_repo.language, starred_repo.time])
         print(star_table)
-    print(user + " have starred " + str(len(stars)) + " repo(s) today.")
+    print("{} have starred {} repo(s) today.".format(user, str(len(stars))))
 
 
 def fill_todays_data(user, today, events, latest, stars, other):
@@ -182,12 +178,13 @@ def fill_todays_data(user, today, events, latest, stars, other):
 
         if starts_today and event_type_issue_comment_event:
             if event["type"] == "WatchEvent":
-                stars.append(event)
+                stars.append(create_star(event))
             elif event["type"] in ("ForkEvent", "MemberEvent"):
                 other.append(event)
             elif check_for_fork(event["repo"]["url"], user):
                 latest.append(event)
     return latest, stars, other
+
 
 def fill_dated_data(user, events, latest, stars, other):
     """Traverses the events array and seperates individual data to latest, stars and other arrays"""
@@ -202,6 +199,17 @@ def fill_dated_data(user, events, latest, stars, other):
             elif check_for_fork(event["repo"]["url"], user):
                 latest.append(event)
     return latest, stars, other
+
+  
+def get_language_for_repo(url):
+    response = requests.get(url)
+    repo = response.json()
+    return repo['language']
+
+  
+def create_star(event):
+    language = get_language_for_repo(event['repo']['url'])
+    return StarredRepo(name=event['repo']['name'], language=language, time=get_local_time(event['created_at']))
 
 
 def update():
@@ -231,37 +239,50 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
                 filtered_events.append(e)
     return filtered_events
 
+  
 def show_contri(args=None):
     """Sends a get request to github rest api and display data using the utility functions"""
     user = args["name"]
     now = datetime.datetime.now()
     today = str(now.strftime("%Y-%m-%d"))
-    link = github_uri + str(user) + "/events"
+    link = "{}{}/events".format(github_uri, str(user))
     response = requests.get(link)
     events = response.json()
     latest = []
     stars = []
     other = []
-    if args["since"] and args["until"]:
-        since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
-        until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
-        events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
-    elif args["since"]:
-        since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
-        events = filter_since_until_dates(events, since_date=since_date)
-    elif args["until"]:
-        until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
-        events = filter_since_until_dates(events, until_date=until_date)
     if response.status_code == 200:
-        if 'since_date' in vars() or 'until_date' in vars():
-            latest, stars, other = fill_dated_data(
-            user, events, latest, stars, other)
-        else:
-            latest, stars, other = fill_todays_data(
-                user, today, events, latest, stars, other)
+        if args["since"] and args["until"]:
+            since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+            until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+            events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
+        elif args["since"]:
+            since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+            events = filter_since_until_dates(events, since_date=since_date)
+        elif args["until"]:
+            until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+            events = filter_since_until_dates(events, until_date=until_date)
+        if response.status_code == 200:
+            if 'since_date' in vars() or 'until_date' in vars():
+                latest, stars, other = fill_dated_data(
+                user, events, latest, stars, other)
+            else:
+                latest, stars, other = fill_todays_data(
+                    user, today, events, latest, stars, other)
+    elif response.status_code == 404:
+        print(
+            "User with username {0} does not exists, please check and try again"
+            .format(str(user))
+        )
+        return
+    elif response.status_code == 403:
+        print(
+            "API rate limit exceeded, try again later."
+        )
+
     else:
         print(
-            "Something went wrong, check your internet or username. \n"
+            "Something went wrong, please check your internet connection \n"
             "Use stalk --help for Help"
         )
         return
@@ -275,7 +296,7 @@ def show_contri(args=None):
         get_contributions(user, latest)
 
     get_other_activity(user, other)
-    get_stars(user, stars)
+    display_stars(user, stars)
 
 
 def run():
@@ -314,5 +335,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-    
-    
