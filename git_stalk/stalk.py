@@ -8,6 +8,9 @@ from dateutil import tz
 from prettytable import PrettyTable
 import requests
 
+
+
+
 github_uri = "https://api.github.com/users/"
 
 StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
@@ -100,6 +103,12 @@ def convert_to_local(string):
     local_stamp = utc_stamp.astimezone(to_zone)
     return(str(local_stamp))
 
+
+def date_time_validate(date_text):
+    try:
+        datetime.datetime.strptime(date_text, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
 def get_contributions(user, latest, org=None):
     """
