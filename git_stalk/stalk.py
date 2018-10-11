@@ -6,6 +6,7 @@ import argparse
 from collections import namedtuple
 from dateutil import tz
 from prettytable import PrettyTable
+import requests
 
 github_uri = "https://api.github.com/users/"
 
@@ -73,7 +74,6 @@ def get_local_time(string):
     tukde = local_time.split(' ')
     samay = tukde[1].split('+')[0]
     return samay
-
 
 def get_basic_info(user):
     """Prints the user's basic info"""
@@ -239,6 +239,8 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
                 filtered_events.append(e)
     return filtered_events
 
+def getipaddress(args=None):
+    return (requests.get("http://ipecho.net/plain?").text)
   
 def show_contri(args=None):
     """Sends a get request to github rest api and display data using the utility functions"""
@@ -277,7 +279,7 @@ def show_contri(args=None):
         return
     elif response.status_code == 403:
         print(
-            "API rate limit exceeded, try again later."
+            "API rate limit exceeded for ip address ,"+getipaddress()+" try again later or change ip adress."
         )
 
     else:
