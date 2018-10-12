@@ -164,8 +164,7 @@ def display_stars(user, stars):
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for starred_repo in stars:
-            element = starred_repo
-            star_table.add_row([element["repo"]["name"], get_language_for_repo(element["repo"]["url"]),get_local_time(element["created_at"])])
+            star_table.add_row([starred_repo["repo"]["name"], get_language_for_repo(starred_repo["repo"]["url"]),get_local_time(starred_repo["created_at"])])
         print(star_table)
     print("{} have starred {} repo(s) today.".format(user, str(len(stars))))
 
