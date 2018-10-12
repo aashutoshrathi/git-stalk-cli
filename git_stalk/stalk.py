@@ -6,10 +6,6 @@ import argparse
 from collections import namedtuple
 from dateutil import tz
 from prettytable import PrettyTable
-import requests
-
-
-
 
 github_uri = "https://api.github.com/users/"
 
