@@ -1,9 +1,10 @@
-import requests
-import datetime
-import re
-import os
 import argparse
+import datetime
+import os
+import re
 from collections import namedtuple
+
+import requests
 from dateutil import tz
 from prettytable import PrettyTable
 
@@ -96,7 +97,7 @@ def convert_to_local(string):
     utc_stamp = datetime.datetime.strptime(
         string, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=from_zone)
     local_stamp = utc_stamp.astimezone(to_zone)
-    return(str(local_stamp))
+    return str(local_stamp)
 
 
 def get_contributions(user, latest, org=None):
@@ -287,7 +288,7 @@ def show_contri(args=None):
         )
         return
 
-    if args["np"] is False:
+    if not args["np"]:
         get_basic_info(user)
 
     if args["org"]:
@@ -307,10 +308,8 @@ def run():
     ap.add_argument(
         "-U", "--update",
         action='store_true',
-        help=(
-            "Update this program to latest version. Make sure that you have"
-            " sufficient permissions (run with sudo if needed)"
-        )
+        help="Update this program to latest version. "
+             "Make sure that you have sufficient permissions (run with sudo if needed)"
     )
     ap.add_argument("-np", action='store_true',
                     help="Stalks a user without showing their profile")
@@ -321,8 +320,6 @@ def run():
     if len(args) > 1:
         if args["update"]:
             update()
-        # elif(sys.argv[1] == "--version"):
-        #     show_version()
         else:
             show_contri(args)
     else:
