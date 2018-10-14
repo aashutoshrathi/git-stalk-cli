@@ -138,8 +138,11 @@ def get_contributions(user, latest, org=None):
                     get_details(event)
                 ])
         print(table)
-    print("{} have made {} public contribution(s) today.\n".format(
-        user, str(len(latest))))
+
+    contribution_plural = 'contribution' if len(latest) == 1 else 'contributions'
+
+    print("{} have made {} public {} today.\n".format(
+        user, len(latest), contribution_plural))
 
 
 def get_other_activity(user, other):
@@ -158,7 +161,10 @@ def get_other_activity(user, other):
                 get_details(event),
             ])
         print(other_table)
-    print("{} have done {} other public activit(y/ies) today.\n".format(user, str(len(other))))
+
+    activity_plural = 'activity' if len(other) == 1 else 'activities'
+    
+    print("{} have done {} other public {} today.\n".format(user, len(other), activity_plural))
 
 
 def display_stars(user, stars):
@@ -173,7 +179,10 @@ def display_stars(user, stars):
         for starred_repo in stars:
             star_table.add_row([starred_repo["repo"]["name"], get_language_for_repo(starred_repo["repo"]["url"]),get_local_time(starred_repo["created_at"])])
         print(star_table)
-    print("{} have starred {} repo(s) today.".format(user, str(len(stars))))
+
+    repo_plural = 'repo' if len(stars) == 1 else 'repos'
+    
+    print("{} have starred {} {} today.".format(user, len(stars), repo_plural))
 
 
 def fill_todays_data(user, today, events, latest, stars, other):
