@@ -79,6 +79,8 @@ def get_basic_info(user):
     user_link = "{}{}".format(github_uri, str(user))
     user_profile = requests.get(user_link)
     profile = user_profile.json()
+    test = open("test.json","w")
+    test.write(str(profile))
     print("Name:", profile["name"])
     print("Company:", profile["company"])
     print("Bio:", profile["bio"])
