@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2018-10-14
+
+### Added
+
+- IP address shown on exceeding API call limit by @sayanmondal2098
+
+### Bug Fixes
+
+- Fixed bug "AttributeError: 'dict' object has no attribute 'name' " by @Galixxon
+
 ## [1.0.9] - 2018-10-11
 
 ### Changes
