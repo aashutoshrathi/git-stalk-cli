@@ -73,7 +73,6 @@ def get_local_time(string):
     samay = tukde[1].split('+')[0]
     return samay
 
-
 def get_basic_info(user):
     """Prints the user's basic info"""
     user_link = "{}{}".format(github_uri, str(user))
@@ -85,6 +84,8 @@ def get_basic_info(user):
     print("Followers:", profile["followers"])
     print("Following:", profile["following"])
     print("Public Repos:", profile["public_repos"])
+    print ("Public Gists:",profile["public_gists"])
+    print("Open for hiring:",profile["hireable"])
     print()
 
 
@@ -97,6 +98,12 @@ def convert_to_local(string):
     local_stamp = utc_stamp.astimezone(to_zone)
     return(str(local_stamp))
 
+
+def date_time_validate(date_text):
+    try:
+        datetime.datetime.strptime(date_text, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
 def get_contributions(user, latest, org=None):
     """
@@ -238,6 +245,8 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
                 filtered_events.append(e)
     return filtered_events
 
+def getipaddress(args=None):
+    return (requests.get("http://ipecho.net/plain?").text)
   
 def show_contri(args=None):
     """Sends a get request to github rest api and display data using the utility functions"""
@@ -276,7 +285,7 @@ def show_contri(args=None):
         return
     elif response.status_code == 403:
         print(
-            "API rate limit exceeded, try again later."
+            "API rate limit exceeded for ip address ,"+getipaddress()+" try again later or change ip adress."
         )
 
     else:
