@@ -66,6 +66,13 @@ def check_for_fork(link, user):
     return True
 
 
+def get_local_date(string):
+    """Returns the local date"""
+    local_datetime = convert_to_local(string)
+    date = local_datetime.split(' ')[0]
+    return date
+
+
 def get_local_time(string):
     """Returns the local time"""
     local_time = convert_to_local(string)
@@ -114,7 +121,7 @@ def get_contributions(user, latest, org=None):
     """
     print("Contributions Today: ")
     if latest:
-        table = PrettyTable(["Type", "Repository", "Time", "Details"])
+        table = PrettyTable(["Type", "Repository", "Date", "Time", "Details"])
         for event in latest:
             repo_name = event["repo"]["name"]
             if org:
@@ -127,6 +134,7 @@ def get_contributions(user, latest, org=None):
                     table.add_row([
                         get_event(event["type"]),
                         event["repo"]["name"],
+                        get_local_date(event["created_at"]),
                         get_local_time(event["created_at"]),
                         get_details(event)
                     ])
@@ -134,6 +142,7 @@ def get_contributions(user, latest, org=None):
                 table.add_row([
                     get_event(event["type"]),
                     event["repo"]["name"],
+                    get_local_date(event["created_at"]),
                     get_local_time(event["created_at"]),
                     get_details(event)
                 ])
