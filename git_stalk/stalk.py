@@ -112,7 +112,7 @@ def get_contributions(user, latest, org=None):
         if org argument is present only the repos which belong to the org is added to the table
         and prints the table.
     """
-    print("Contributions Today: ")
+    print("Contributions today: ")
     if latest:
         table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in latest:
@@ -148,7 +148,7 @@ def get_other_activity(user, other):
         creates a table
         and prints the table.
     """
-    print("Other Activity today: ")
+    print("Other activity today: ")
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
