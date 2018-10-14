@@ -161,10 +161,11 @@ def get_other_activity(user, other):
     """
     print("Other Activity today: ")
     if other:
-        other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
+        other_table = PrettyTable(["Type", "Repository", "Date", "Time", "Details"])
         for event in other:
             other_table.add_row([
                 get_event(event["type"]), event["repo"]["name"],
+                get_local_date(event["created_at"]),
                 get_local_time(event["created_at"]),
                 get_details(event),
             ])
