@@ -138,8 +138,8 @@ def get_contributions(user, latest, org=None):
                     get_details(event)
                 ])
         print(table)
-    print("{} have made {} public contribution(s) today.\n".format(
-        user, str(len(latest))))
+    print("{} have made {} public contribution(s) {}.\n".format(
+        user, str(len(latest)), date_text))
 
 
 def get_other_activity(user, other):
@@ -148,7 +148,7 @@ def get_other_activity(user, other):
         creates a table
         and prints the table.
     """
-    print("Other Activity today: ")
+    print("Other Activity {}: ".format(date_text))
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
@@ -158,7 +158,7 @@ def get_other_activity(user, other):
                 get_details(event),
             ])
         print(other_table)
-    print("{} have done {} other public activit(y/ies) today.\n".format(user, str(len(other))))
+    print("{} have done {} other public activit(y/ies) {}.\n".format(user, str(len(other)), date_text))
 
 
 def display_stars(user, stars):
@@ -167,13 +167,13 @@ def display_stars(user, stars):
         creates a table
         and prints the table.
     """
-    print("Starred today: ")
+    print("Starred {}: ".format(date_text))
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for starred_repo in stars:
             star_table.add_row([starred_repo["repo"]["name"], get_language_for_repo(starred_repo["repo"]["url"]),get_local_time(starred_repo["created_at"])])
         print(star_table)
-    print("{} have starred {} repo(s) today.".format(user, str(len(stars))))
+    print("{} have starred {} repo(s) {}.".format(user, str(len(stars)), date_text))
 
 
 def fill_todays_data(user, today, events, latest, stars, other):
