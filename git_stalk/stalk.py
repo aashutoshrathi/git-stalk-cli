@@ -80,6 +80,7 @@ def get_local_time(string):
     samay = tukde[1].split('+')[0]
     return samay
 
+
 def get_basic_info(user):
     """Prints the user's basic info"""
     user_link = "{}{}".format(github_uri, str(user))
@@ -111,6 +112,7 @@ def date_time_validate(date_text):
         datetime.datetime.strptime(date_text, "%Y-%m-%d")
     except ValueError:
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+
 
 def get_contributions(user, latest, org=None):
     """
@@ -254,9 +256,11 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
                 filtered_events.append(e)
     return filtered_events
 
+
 def getipaddress(args=None):
     return (requests.get("http://ipecho.net/plain?").text)
   
+
 def show_contri(args=None):
     """Sends a get request to github rest api and display data using the utility functions"""
     user = args["name"]
