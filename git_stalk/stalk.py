@@ -8,7 +8,6 @@ from dateutil import tz
 from prettytable import PrettyTable
 
 github_uri = "https://api.github.com/users/"
-
 StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
 
 def jft(user):
@@ -165,7 +164,7 @@ def display_stars(user, stars):
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for starred_repo in stars:
-            star_table.add_row([starred_repo.name, starred_repo.language, starred_repo.time])
+            star_table.add_row([starred_repo["repo"]["name"], get_language_for_repo(starred_repo["repo"]["url"]),get_local_time(starred_repo["created_at"])])
         print(star_table)
     print("{} have starred {} repo(s) today.".format(user, str(len(stars))))
 
