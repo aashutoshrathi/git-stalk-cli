@@ -117,7 +117,7 @@ def get_contributions(user, latest, org=None):
         if org argument is present only the repos which belong to the org is added to the table
         and prints the table.
     """
-    print("Contributions Today: ({})".format(get_today_date()))
+    print("Contributions {} :".format(get_today_date()))
     if latest:
         table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in latest:
@@ -153,7 +153,7 @@ def get_other_activity(user, other):
         creates a table
         and prints the table.
     """
-    print("Other Activity today (): ".format(get_today_date()))
+    print("Other Activity {}: ".format(get_today_date()))
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
@@ -172,7 +172,7 @@ def display_stars(user, stars):
         creates a table
         and prints the table.
     """
-    print("Starred today ({}): ".format(get_today_date()))
+    print("Starred {}: ".format(get_today_date()))
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for starred_repo in stars:
