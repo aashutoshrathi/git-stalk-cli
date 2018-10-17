@@ -2,8 +2,15 @@ language: python
 python:
   - "2.7"
   - "3.6"
-
-script: pytest
+install:
+- pip install -r requirements.txt
+- pip install -r travis_requirements.txt
+script:
+- pytest --cov git_stalk --cov-report term-missing --cov-report xml
+- pytest --flakes
+- pytest --pep8
+- pytest --mccabe -m mccabe
+- pytest --pylint -m pylint
 notifications:
   email: false
   webhooks: https://fathomless-fjord-24024.herokuapp.com/notify

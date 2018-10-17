@@ -1,9 +1,10 @@
-import requests
-import datetime
-import re
-import os
 import argparse
+import datetime
+import os
+import re
 from collections import namedtuple
+
+import requests
 from dateutil import tz
 from prettytable import PrettyTable
 
@@ -96,7 +97,7 @@ def convert_to_local(string):
     utc_stamp = datetime.datetime.strptime(
         string, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=from_zone)
     local_stamp = utc_stamp.astimezone(to_zone)
-    return(str(local_stamp))
+    return str(local_stamp)
 
 
 def date_time_validate(date_text):
@@ -143,8 +144,7 @@ def get_contributions(user, latest, org=None):
                     get_details(event)
                 ])
         print(table)
-    print("{} have made {} public contribution(s) {}.\n".format(
-        user, str(len(latest)), get_today_date()))
+    print("{} have made {} public contribution(s) {}.\n".format(user, str(len(latest)), date_text))
 
 
 def get_other_activity(user, other):
@@ -153,7 +153,8 @@ def get_other_activity(user, other):
         creates a table
         and prints the table.
     """
-    print("Other Activity {}: ".format(get_today_date()))
+    print("Other Activity {}: ".format(date_text))
+    
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
@@ -163,8 +164,8 @@ def get_other_activity(user, other):
                 get_details(event),
             ])
         print(other_table)
-    print("{} have done {} other public activit(y/ies) {}.\n".format(user, str(len(other)), get_today_date()))
-
+    print("{} have done {} other public activit(y/ies) {}.\n".format(user, str(len(other)), date_text))
+ 
 
 def display_stars(user, stars):
     """
@@ -172,13 +173,13 @@ def display_stars(user, stars):
         creates a table
         and prints the table.
     """
-    print("Starred {}: ".format(get_today_date()))
+    print("Starred {}: ".format(date_text))
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for starred_repo in stars:
             star_table.add_row([starred_repo["repo"]["name"], get_language_for_repo(starred_repo["repo"]["url"]),get_local_time(starred_repo["created_at"])])
         print(star_table)
-    print("{} have starred {} repo(s) {}.".format(user, str(len(stars)), get_today_date()))
+    print("{} have starred {} repo(s) {}.".format(user, str(len(stars)), date_text))
 
 
 def fill_todays_data(user, today, events, latest, stars, other):
@@ -300,7 +301,7 @@ def show_contri(args=None):
         )
         return
 
-    if args["np"] is False:
+    if not args["np"]:
         get_basic_info(user)
 
     if args["org"]:
@@ -320,10 +321,8 @@ def run():
     ap.add_argument(
         "-U", "--update",
         action='store_true',
-        help=(
-            "Update this program to latest version. Make sure that you have"
-            " sufficient permissions (run with sudo if needed)"
-        )
+        help="Update this program to latest version. "
+             "Make sure that you have sufficient permissions (run with sudo if needed)"
     )
     ap.add_argument("-np", action='store_true',
                     help="Stalks a user without showing their profile")
@@ -334,8 +333,6 @@ def run():
     if len(args) > 1:
         if args["update"]:
             update()
-        # elif(sys.argv[1] == "--version"):
-        #     show_version()
         else:
             show_contri(args)
     else:
