@@ -106,6 +106,11 @@ def date_time_validate(date_text):
     except ValueError:
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
+
+def get_today_date():
+    return (str(datetime.datetime.now().strftime("%Y-%m-%d")))
+
+
 def get_contributions(user, latest, org=None):
     """
         Traverses the latest array,
@@ -113,7 +118,7 @@ def get_contributions(user, latest, org=None):
         if org argument is present only the repos which belong to the org is added to the table
         and prints the table.
     """
-    print("Contributions Today: ")
+    print("Contributions {} :".format(get_today_date()))
     if latest:
         table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in latest:
@@ -139,8 +144,7 @@ def get_contributions(user, latest, org=None):
                     get_details(event)
                 ])
         print(table)
-    print("{} have made {} public contribution(s) {}.\n".format(
-        user, str(len(latest)), date_text))
+    print("{} have made {} public contribution(s) {}.\n".format(user, str(len(latest)), date_text))
 
 
 def get_other_activity(user, other):
@@ -150,6 +154,7 @@ def get_other_activity(user, other):
         and prints the table.
     """
     print("Other Activity {}: ".format(date_text))
+    
     if other:
         other_table = PrettyTable(["Type", "Repository", "Time", "Details"])
         for event in other:
@@ -160,7 +165,7 @@ def get_other_activity(user, other):
             ])
         print(other_table)
     print("{} have done {} other public activit(y/ies) {}.\n".format(user, str(len(other)), date_text))
-
+ 
 
 def display_stars(user, stars):
     """
