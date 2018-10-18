@@ -11,6 +11,7 @@ from prettytable import PrettyTable
 github_uri = "https://api.github.com/users/"
 StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
 
+
 def jft(user):
     user_link = "{}{}".format(github_uri, str(user))
     response = requests.get(user_link)
@@ -33,26 +34,24 @@ def get_event(string):
 
 def get_details(event):
     """Returns the details of the event according to the type of the event"""
-    if event["type"] == "IssuesEvent":
-        return event["payload"]["issue"]["title"]
-    elif event["type"] == "IssueCommentEvent":
-        return event["payload"]["comment"]["body"]
-    elif event["type"] == "PullRequestEvent":
-        return event["payload"]["pull_request"]["title"]
+
+    details = {
+        "IssuesEvent": event["payload"]["issue"]["title"],
+        "IssueCommentEvent": event["payload"]["comment"]["body"],
+        "PullRequestEvent": event["payload"]["pull_request"]["title"],
+        "MemberEvent": "Added {} as collaborator".format(
+            event["payload"]["member"]["login"]),
+        "ReleaseEvent": "Released binaries for version {}".format(
+            event["payload"]["release"]["tag_name"]),
+        "ForkEvent": "Forked " + event["repo"]["name"]
+    }
+
+    if event["type"] in details:
+        return details[event["type"]]
     elif event["type"] == "PushEvent":
         for commit in event["payload"]["commits"]:
             if commit["distinct"]:
                 return commit["message"]
-    elif event["type"] == "MemberEvent":
-        return "Added {} as collaborator".format(
-            event["payload"]["member"]["login"]
-        )
-    elif event["type"] == "ReleaseEvent":
-        return "Released binaries for version {}".format(
-            event["payload"]["release"]["tag_name"]
-        )
-    elif event["type"] == "ForkEvent":
-        return "Forked " + event["repo"]["name"]
 
 
 def check_for_fork(link, user):
@@ -73,6 +72,7 @@ def get_local_time(string):
     tukde = local_time.split(' ')
     samay = tukde[1].split('+')[0]
     return samay
+
 
 def get_basic_info(user):
     """Prints the user's basic info"""
@@ -105,6 +105,7 @@ def date_time_validate(date_text):
         datetime.datetime.strptime(date_text, "%Y-%m-%d")
     except ValueError:
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+
 
 def get_contributions(user, latest, org=None):
     """
@@ -207,16 +208,18 @@ def fill_dated_data(user, events, latest, stars, other):
                 latest.append(event)
     return latest, stars, other
 
-  
+
 def get_language_for_repo(url):
     response = requests.get(url)
     repo = response.json()
     return repo['language']
 
-  
+
 def create_star(event):
     language = get_language_for_repo(event['repo']['url'])
-    return StarredRepo(name=event['repo']['name'], language=language, time=get_local_time(event['created_at']))
+    return StarredRepo(
+        name=event['repo']['name'], language=language,
+        time=get_local_time(event['created_at']))
 
 
 def update():
@@ -226,31 +229,38 @@ def update():
 
 def filter_since_until_dates(events, since_date=None, until_date=None):
     """Filters the events based on since and until dates"""
+
     filtered_events = []
-    if since_date and until_date:
-        for e in events:
-            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
+
+    for e in events:
+        created_at = datetime.datetime.strptime(
+            e['created_at'][:10], "%Y-%m-%d")
+
+        if since_date and until_date:
             if created_at >= since_date and created_at <= until_date:
                 filtered_events.append(e)
-    elif since_date:
-        for e in events:
-            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
-            if created_at >= since_date:
-                filtered_events.append(e)
-            else:
-                break
-    elif until_date:
-        for e in events:
-            created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
-            if created_at <= until_date:
-                filtered_events.append(e)
+
+        elif since_date:
+                if created_at >= since_date:
+                    filtered_events.append(e)
+                else:
+                    break
+
+        elif until_date:
+                if created_at <= until_date:
+                    filtered_events.append(e)
+
     return filtered_events
+
 
 def getipaddress(args=None):
     return (requests.get("http://ipecho.net/plain?").text)
-  
+
+
 def show_contri(args=None):
-    """Sends a get request to github rest api and display data using the utility functions"""
+    """Sends a get request to github rest api and display data using the
+    utility functions"""
+
     user = args["name"]
     now = datetime.datetime.now()
     today = str(now.strftime("%Y-%m-%d"))
@@ -260,21 +270,25 @@ def show_contri(args=None):
     latest = []
     stars = []
     other = []
+
     if response.status_code == 200:
-        if args["since"] and args["until"]:
+        since_date = None
+        until_date = None
+
+        if args["since"]:
             since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+
+        if args["until"]:
             until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
-            events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
-        elif args["since"]:
-            since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
-            events = filter_since_until_dates(events, since_date=since_date)
-        elif args["until"]:
-            until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
-            events = filter_since_until_dates(events, until_date=until_date)
-        if response.status_code == 200:
+
+        if since_date or until_date:
+            events = filter_since_until_dates(
+                events, since_date=since_date, until_date=until_date)
+
+        else:
             if 'since_date' in vars() or 'until_date' in vars():
                 latest, stars, other = fill_dated_data(
-                user, events, latest, stars, other)
+                    user, events, latest, stars, other)
             else:
                 latest, stars, other = fill_todays_data(
                     user, today, events, latest, stars, other)
@@ -286,7 +300,7 @@ def show_contri(args=None):
         return
     elif response.status_code == 403:
         print(
-            "API rate limit exceeded for ip address ,"+getipaddress()+" try again later or change ip adress."
+            "API rate limit exceeded for ip address ," + getipaddress() + " try again later or change ip adress."
         )
 
     else:
