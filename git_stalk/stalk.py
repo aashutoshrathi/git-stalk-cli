@@ -3,13 +3,13 @@ import datetime
 import os
 import re
 from collections import namedtuple
-
 import requests
 from dateutil import tz
 from prettytable import PrettyTable
 
 github_uri = "https://api.github.com/users/"
 StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
+
 
 def jft(user):
     user_link = "{}{}".format(github_uri, str(user))
@@ -33,26 +33,28 @@ def get_event(string):
 
 def get_details(event):
     """Returns the details of the event according to the type of the event"""
+    res = ""
     if event["type"] == "IssuesEvent":
-        return event["payload"]["issue"]["title"]
+        res += event["payload"]["issue"]["title"]
     elif event["type"] == "IssueCommentEvent":
-        return event["payload"]["comment"]["body"]
+        res += event["payload"]["comment"]["body"]
     elif event["type"] == "PullRequestEvent":
-        return event["payload"]["pull_request"]["title"]
+        res += event["payload"]["pull_request"]["title"]
     elif event["type"] == "PushEvent":
         for commit in event["payload"]["commits"]:
             if commit["distinct"]:
-                return commit["message"]
+                res += commit["message"]
     elif event["type"] == "MemberEvent":
-        return "Added {} as collaborator".format(
+        res += "Added {} as collaborator".format(
             event["payload"]["member"]["login"]
         )
     elif event["type"] == "ReleaseEvent":
-        return "Released binaries for version {}".format(
+        res += "Released binaries for version {}".format(
             event["payload"]["release"]["tag_name"]
         )
     elif event["type"] == "ForkEvent":
-        return "Forked " + event["repo"]["name"]
+        res += "Forked " + event["repo"]["name"]
+    return res
 
 
 def check_for_fork(link, user):
@@ -74,6 +76,7 @@ def get_local_time(string):
     samay = tukde[1].split('+')[0]
     return samay
 
+
 def get_basic_info(user):
     """Prints the user's basic info"""
     user_link = "{}{}".format(github_uri, str(user))
@@ -85,8 +88,8 @@ def get_basic_info(user):
     print("Followers:", profile["followers"])
     print("Following:", profile["following"])
     print("Public Repos:", profile["public_repos"])
-    print ("Public Gists:",profile["public_gists"])
-    print("Open for hiring:",profile["hireable"])
+    print("Public Gists:", profile["public_gists"])
+    print("Open for hiring:", profile["hireable"])
     print()
 
 
@@ -106,7 +109,8 @@ def date_time_validate(date_text):
     except ValueError:
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
-def get_contributions(user, latest, org=None):
+
+def get_contributions(user, latest, date_text, org=None):
     """
         Traverses the latest array,
         creates a table
@@ -143,7 +147,7 @@ def get_contributions(user, latest, org=None):
         user, str(len(latest)), date_text))
 
 
-def get_other_activity(user, other):
+def get_other_activity(user, other, date_text):
     """
         Traverses the other array,
         creates a table
@@ -162,7 +166,7 @@ def get_other_activity(user, other):
     print("{} have done {} other public activit(y/ies) {}.\n".format(user, str(len(other)), date_text))
 
 
-def display_stars(user, stars):
+def display_stars(user, stars, date_text):
     """
         Traverses the stars array,
         creates a table
@@ -172,7 +176,8 @@ def display_stars(user, stars):
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for starred_repo in stars:
-            star_table.add_row([starred_repo["repo"]["name"], get_language_for_repo(starred_repo["repo"]["url"]),get_local_time(starred_repo["created_at"])])
+            star_table.add_row([starred_repo["repo"]["name"], get_language_for_repo(starred_repo["repo"]["url"]),
+                                get_local_time(starred_repo["created_at"])])
         print(star_table)
     print("{} have starred {} repo(s) {}.".format(user, str(len(stars)), date_text))
 
@@ -207,13 +212,13 @@ def fill_dated_data(user, events, latest, stars, other):
                 latest.append(event)
     return latest, stars, other
 
-  
+
 def get_language_for_repo(url):
     response = requests.get(url)
     repo = response.json()
     return repo['language']
 
-  
+
 def create_star(event):
     language = get_language_for_repo(event['repo']['url'])
     return StarredRepo(name=event['repo']['name'], language=language, time=get_local_time(event['created_at']))
@@ -230,7 +235,7 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
     if since_date and until_date:
         for e in events:
             created_at = datetime.datetime.strptime(e['created_at'][:10], "%Y-%m-%d")
-            if created_at >= since_date and created_at <= until_date:
+            if until_date >= created_at >= since_date:
                 filtered_events.append(e)
     elif since_date:
         for e in events:
@@ -246,11 +251,13 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
                 filtered_events.append(e)
     return filtered_events
 
-def getipaddress(args=None):
-    return (requests.get("http://ipecho.net/plain?").text)
-  
+
+def getipaddress():
+    return requests.get("http://ipecho.net/plain?").text
+
+
 def show_contri(args=None):
-    """Sends a get request to github rest api and display data using the utility functions"""
+    """Sends a get request to GitHub REST api and display data using the utility functions"""
     user = args["name"]
     now = datetime.datetime.now()
     today = str(now.strftime("%Y-%m-%d"))
@@ -260,21 +267,25 @@ def show_contri(args=None):
     latest = []
     stars = []
     other = []
+    text_date = ""
     if response.status_code == 200:
         if args["since"] and args["until"]:
             since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
             until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+            text_date = "from {} to {}".format(since_date, until_date)
             events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
         elif args["since"]:
             since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+            text_date = "since {}".format(since_date)
             events = filter_since_until_dates(events, since_date=since_date)
         elif args["until"]:
             until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+            text_date = "until {}".format(until_date)
             events = filter_since_until_dates(events, until_date=until_date)
         if response.status_code == 200:
             if 'since_date' in vars() or 'until_date' in vars():
                 latest, stars, other = fill_dated_data(
-                user, events, latest, stars, other)
+                                                        user, events, latest, stars, other)
             else:
                 latest, stars, other = fill_todays_data(
                     user, today, events, latest, stars, other)
@@ -286,7 +297,7 @@ def show_contri(args=None):
         return
     elif response.status_code == 403:
         print(
-            "API rate limit exceeded for ip address ,"+getipaddress()+" try again later or change ip adress."
+            "API rate limit exceeded for IP address " + getipaddress() + " Try again later or change IP adress."
         )
 
     else:
@@ -300,12 +311,12 @@ def show_contri(args=None):
         get_basic_info(user)
 
     if args["org"]:
-        get_contributions(user, latest, args["org"])
+        get_contributions(user, latest, text_date, args["org"])
     else:
-        get_contributions(user, latest)
+        get_contributions(user, latest, text_date)
 
-    get_other_activity(user, other)
-    display_stars(user, stars)
+    get_other_activity(user, other, text_date)
+    display_stars(user, stars, text_date)
 
 
 def run():
@@ -322,7 +333,7 @@ def run():
     ap.add_argument("-np", action='store_true',
                     help="Stalks a user without showing their profile")
     ap.add_argument("--since", help="Take into account only events since date. Date format MM-DD-YYYY")
-    ap.add_argument("--until", help="Take into account only events after date. Date format MM-DD-YYYY")
+    ap.add_argument("--until", help="Take into account only events until date. Date format MM-DD-YYYY")
     args = vars(ap.parse_args())
 
     if len(args) > 1:
