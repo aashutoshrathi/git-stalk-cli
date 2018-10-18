@@ -77,21 +77,24 @@ def get_local_time(string):
 
 def get_basic_info(user):
     """Prints the user's basic info."""
+
     user_link = "{}{}".format(github_uri, str(user))
     user_profile = requests.get(user_link)
     profile = user_profile.json()
-    print("Name:", profile["name"])
-    print("Company:", profile["company"])
-    print("Bio:", profile["bio"])
-    print("Followers:", profile["followers"])
-    print("Following:", profile["following"])
-    print("Public Repos:", profile["public_repos"])
-    print("Public Gists:", profile["public_gists"])
-    print("Open for hiring:", profile["hireable"], '\n')
+
+    print("Name: {}".format(profile["name"]))
+    print("Company: {}".format(profile["company"]))
+    print("Bio: {}".format(profile["bio"]))
+    print("Followers: {}".format(profile["followers"]))
+    print("Following: {}".format(profile["following"]))
+    print("Public Repos: {}".format(profile["public_repos"]))
+    print("Public Gists: {}".format(profile["public_gists"]))
+    print("Open for hiring: {} \n".format(profile["hireable"]))
 
 
 def convert_to_local(string):
     """Returns the local_stamp as string."""
+
     from_zone = tz.tzutc()
     to_zone = tz.tzlocal()
     utc_stamp = datetime.datetime.strptime(
@@ -111,7 +114,8 @@ def get_contributions(user, latest, date_text, org=None):
     """
         Traverses the latest array,
         creates a table
-        if org argument is present only the repos which belong to the org is added to the table
+        if org argument is present only the repos which belong to the org \
+        is added to the table
         and prints the table.
     """
     print("Contributions Today: ")
@@ -309,11 +313,13 @@ def show_contri(args=None):
             text_date = "until {}".format(until_date)
 
     elif response.status_code == 404:
-        print("User with username {0} does not exists, please check and try again".format(str(user)))
+        print("User with username {0} does not exists, please check and \
+         try again".format(str(user)))
         return
 
     elif response.status_code == 403:
-        print("API rate limit exceeded for IP address " + getipaddress() + " Try again later or change IP adress.")
+        print("API rate limit exceeded for IP address \
+            " + getipaddress() + " Try again later or change IP adress.")
 
     else:
         print(
@@ -345,7 +351,8 @@ def run():
         "-U", "--update",
         action='store_true',
         help="Update this program to latest version. "
-             "Make sure that you have sufficient permissions (run with sudo if needed)"
+             "Make sure that you have sufficient permissions \
+             (run with sudo if needed)"
     )
     ap.add_argument(
         "-np", action='store_true',
@@ -369,8 +376,8 @@ def run():
             show_contri(args)
     else:
         print(
-            "Enter a valid username to stalk. \n",
-            "For eg: stalk aashutoshrathi \n",
+            "Enter a valid username to stalk. \n"
+            "For eg: stalk aashutoshrathi \n"
             "Or you can type stalk --help for help")
 
 
