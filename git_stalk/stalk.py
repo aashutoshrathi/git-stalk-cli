@@ -110,7 +110,7 @@ def date_time_validate(date_text):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
 
-def get_contributions(user, latest, org=None):
+def get_contributions(user, latest, date_text, org=None):
     """
         Traverses the latest array,
         creates a table
@@ -147,7 +147,7 @@ def get_contributions(user, latest, org=None):
         user, str(len(latest)), date_text))
 
 
-def get_other_activity(user, other):
+def get_other_activity(user, other, date_text):
     """
         Traverses the other array,
         creates a table
@@ -166,7 +166,7 @@ def get_other_activity(user, other):
     print("{} have done {} other public activit(y/ies) {}.\n".format(user, str(len(other)), date_text))
 
 
-def display_stars(user, stars):
+def display_stars(user, stars, date_text):
     """
         Traverses the stars array,
         creates a table
@@ -267,16 +267,20 @@ def show_contri(args=None):
     latest = []
     stars = []
     other = []
+    text_date = ""
     if response.status_code == 200:
         if args["since"] and args["until"]:
             since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
             until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+            text_date = "from {} to {}".format(since_date, until_date)
             events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
         elif args["since"]:
             since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
+            text_date = "since {}".format(since_date)
             events = filter_since_until_dates(events, since_date=since_date)
         elif args["until"]:
             until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
+            text_date = "until {}".format(until_date)
             events = filter_since_until_dates(events, until_date=until_date)
         if response.status_code == 200:
             if 'since_date' in vars() or 'until_date' in vars():
@@ -307,12 +311,12 @@ def show_contri(args=None):
         get_basic_info(user)
 
     if args["org"]:
-        get_contributions(user, latest, args["org"])
+        get_contributions(user, latest, text_date, args["org"])
     else:
-        get_contributions(user, latest)
+        get_contributions(user, latest, text_date)
 
-    get_other_activity(user, other)
-    display_stars(user, stars)
+    get_other_activity(user, other, text_date)
+    display_stars(user, stars, text_date)
 
 
 def run():
