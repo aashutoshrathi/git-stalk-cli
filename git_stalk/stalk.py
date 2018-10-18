@@ -52,7 +52,7 @@ def get_details(event):
         for commit in event["payload"]["commits"]:
             if commit["distinct"]:
                 res += commit["message"]
-        return res  
+        return res
 
 
 def check_for_fork(link, user):
@@ -87,8 +87,7 @@ def get_basic_info(user):
     print("Following:", profile["following"])
     print("Public Repos:", profile["public_repos"])
     print("Public Gists:", profile["public_gists"])
-    print("Open for hiring:", profile["hireable"])
-    print()
+    print("Open for hiring:", profile["hireable"], '\n')
 
 
 def convert_to_local(string):
@@ -312,6 +311,7 @@ def show_contri(args=None):
     elif response.status_code == 404:
         print("User with username {0} does not exists, please check and try again".format(str(user)))
         return
+
     elif response.status_code == 403:
         print("API rate limit exceeded for IP address " + getipaddress() + " Try again later or change IP adress.")
 
@@ -369,10 +369,9 @@ def run():
             show_contri(args)
     else:
         print(
-            "Enter a valid username to stalk. \n"
-            "For eg: stalk aashutoshrathi \n"
-            "Or you can type stalk --help for help"
-        )
+            "Enter a valid username to stalk. \n",
+            "For eg: stalk aashutoshrathi \n",
+            "Or you can type stalk --help for help")
 
 
 if __name__ == '__main__':
