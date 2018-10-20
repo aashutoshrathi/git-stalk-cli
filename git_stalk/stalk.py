@@ -32,27 +32,29 @@ def get_event(string):
 
 
 def get_details(event):
-    """Returns the details of the event according to the type of the event."""
-
-    details = {
-        "IssuesEvent": event["payload"]["issue"]["title"],
-        "IssueCommentEvent": event["payload"]["comment"]["body"],
-        "PullRequestEvent": event["payload"]["pull_request"]["title"],
-        "MemberEvent": "Added {} as collaborator".format(
-            event["payload"]["member"]["login"]),
-        "ReleaseEvent": "Released binaries for version {}".format(
-            event["payload"]["release"]["tag_name"]),
-        "ForkEvent": "Forked " + event["repo"]["name"]
-    }
-
-    if event["type"] in details:
-        return details[event["type"]]
+    """Returns the details of the event according as per type of the event"""
+    res = ""
+    if event["type"] == "IssuesEvent":
+        res += event["payload"]["issue"]["title"]
+    elif event["type"] == "IssueCommentEvent":
+        res += event["payload"]["comment"]["body"]
+    elif event["type"] == "PullRequestEvent":
+        res += event["payload"]["pull_request"]["title"]
     elif event["type"] == "PushEvent":
-        res = ""
         for commit in event["payload"]["commits"]:
             if commit["distinct"]:
                 res += commit["message"]
-        return res
+    elif event["type"] == "MemberEvent":
+        res += "Added {} as collaborator".format(
+            event["payload"]["member"]["login"]
+        )
+    elif event["type"] == "ReleaseEvent":
+        res += "Released binaries for version {}".format(
+            event["payload"]["release"]["tag_name"]
+        )
+    elif event["type"] == "ForkEvent":
+        res += "Forked " + event["repo"]["name"]
+    return res
 
 
 def check_for_fork(link, user):
@@ -253,14 +255,14 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
                 filtered_events.append(e)
 
         elif since_date:
-                if created_at >= since_date:
-                    filtered_events.append(e)
-                else:
-                    break
+            if created_at >= since_date:
+                filtered_events.append(e)
+            else:
+                break
 
         elif until_date:
-                if created_at <= until_date:
-                    filtered_events.append(e)
+            if created_at <= until_date:
+                filtered_events.append(e)
 
     return filtered_events
 
