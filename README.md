@@ -25,6 +25,17 @@
 
 Stalking too much might lead to "API Rate Limit Exceeded for your IP".
 
+## Releasing new version
+
+```sh
+ git checkout master
+ git fetch
+ git merge
+ tox
+ bumpversion minor --tag --commit
+ git push origin master --tags
+```
+
 ## Author
 
 [Aashutosh Rathi](https://github.com/aashutoshrathi)

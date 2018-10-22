@@ -47,7 +47,7 @@ def get_details(event):
 
 
 def check_for_fork(link, user):
-    """Check wheather it is a forked"""
+    """Check whether it is a forked."""
     tukde = link.split('/')
     if tukde[len(tukde) - 2] == user:
         response = requests.get(link)
@@ -59,7 +59,7 @@ def check_for_fork(link, user):
 
 
 def get_local_time(string):
-    """Returns the local time"""
+    """Returns the local time."""
     local_time = convert_to_local(string)
     tukde = local_time.split(' ')
     samay = tukde[1].split('+')[0]
@@ -67,23 +67,25 @@ def get_local_time(string):
 
 
 def get_basic_info(user):
-    """Prints the user's basic info"""
+    """Prints the user's basic info."""
+
     user_link = "{}{}".format(github_uri, str(user))
     user_profile = requests.get(user_link)
     profile = user_profile.json()
-    print("Name:", profile["name"])
-    print("Company:", profile["company"])
-    print("Bio:", profile["bio"])
-    print("Followers:", profile["followers"])
-    print("Following:", profile["following"])
-    print("Public Repos:", profile["public_repos"])
-    print("Public Gists:", profile["public_gists"])
-    print("Open for hiring:", profile["hireable"])
-    print()
+
+    print("Name: {}".format(profile["name"]))
+    print("Company: {}".format(profile["company"]))
+    print("Bio: {}".format(profile["bio"]))
+    print("Followers: {}".format(profile["followers"]))
+    print("Following: {}".format(profile["following"]))
+    print("Public Repos: {}".format(profile["public_repos"]))
+    print("Public Gists: {}".format(profile["public_gists"]))
+    print("Open for hiring: {} \n".format(profile["hireable"]))
 
 
 def convert_to_local(string):
-    """Returns the local_stamp as string"""
+    """Returns the local_stamp as string."""
+
     from_zone = tz.tzutc()
     to_zone = tz.tzlocal()
     utc_stamp = datetime.datetime.strptime(
@@ -103,7 +105,8 @@ def get_contributions(user, latest, date_text, org=None):
     """
         Traverses the latest array,
         creates a table
-        if org argument is present only the repos which belong to the org is added to the table
+        if org argument is present only the repos which belong to the org \
+        is added to the table
         and prints the table.
     """
     print("Contributions Today: ")
@@ -152,7 +155,8 @@ def get_other_activity(user, other, date_text):
                 get_details(event),
             ])
         print(other_table)
-    print("{} have done {} other public activit(y/ies) {}.\n".format(user, str(len(other)), date_text))
+    print("{} have done {} other public activit(y/ies) {}.\n".format(
+        user, str(len(other)), date_text))
 
 
 def display_stars(user, stars, date_text):
@@ -165,14 +169,19 @@ def display_stars(user, stars, date_text):
     if stars:
         star_table = PrettyTable(["Repository", "Language", "Time"])
         for starred_repo in stars:
-            star_table.add_row([starred_repo["repo"]["name"], get_language_for_repo(starred_repo["repo"]["url"]),
-                                get_local_time(starred_repo["created_at"])])
+            star_table.add_row([
+                starred_repo["repo"]["name"],
+                get_language_for_repo(starred_repo["repo"]["url"]),
+                get_local_time(starred_repo["created_at"])])
         print(star_table)
-    print("{} have starred {} repo(s) {}.".format(user, str(len(stars)), date_text))
+    print("{} have starred {} repo(s) {}.".format(
+        user, str(len(stars)), date_text))
 
 
 def fill_todays_data(user, today, events, latest, stars, other):
-    """Traverses the events array and seperates individual data to latest, stars and other arrays"""
+    """Traverses the events array and separates individual data to latest,
+    stars and other arrays"""
+
     for event in events:
         starts_today = convert_to_local(event["created_at"]).startswith(today)
         event_type_issue_comment_event = event["type"] != "IssueCommentEvent"
@@ -188,7 +197,9 @@ def fill_todays_data(user, today, events, latest, stars, other):
 
 
 def fill_dated_data(user, events, latest, stars, other):
-    """Traverses the events array and seperates individual data to latest, stars and other arrays"""
+    """Traverses the events array and seperates individual data to latest,
+    stars and other arrays"""
+
     for event in events:
         event_type_issue_comment_event = event["type"] != "IssueCommentEvent"
 
@@ -210,7 +221,9 @@ def get_language_for_repo(url):
 
 def create_star(event):
     language = get_language_for_repo(event['repo']['url'])
-    return StarredRepo(name=event['repo']['name'], language=language, time=get_local_time(event['created_at']))
+    return StarredRepo(
+        name=event['repo']['name'], language=language,
+        time=get_local_time(event['created_at']))
 
 
 def update():
@@ -253,7 +266,9 @@ def get_dates_from_arguments(arguments):
 
 
 def show_contri(args=None):
-    """Sends a get request to GitHub REST api and display data using the utility functions"""
+    """Sends a get request to GitHub REST api and display data using the
+    utility functions"""
+
     user = args["name"]
     today = str(datetime.datetime.now().strftime("%Y-%m-%d"))
     link = "{}{}/events".format(github_uri, str(user))
@@ -262,6 +277,7 @@ def show_contri(args=None):
     latest = []
     stars = []
     other = []
+
     text_date = ""
     # NOTE: This needs more work. Possibly creating its own class of some sorts.
     if response.status_code == 200:
@@ -298,7 +314,9 @@ def show_contri(args=None):
 
 
 def run():
-    """Parsing the command line arguments using argparse and calls the update or show_contri function as required"""
+    """Parsing the command line arguments using argparse and calls the update
+    or show_contri function as required"""
+
     ap = argparse.ArgumentParser()
     ap.add_argument("name", nargs='?', help="name of the user")
     ap.add_argument("--org", help="Organization Name")
@@ -306,12 +324,22 @@ def run():
         "-U", "--update",
         action='store_true',
         help="Update this program to latest version. "
-             "Make sure that you have sufficient permissions (run with sudo if needed)"
+             "Make sure that you have sufficient permissions \
+             (run with sudo if needed)"
     )
-    ap.add_argument("-np", action='store_true',
-                    help="Stalks a user without showing their profile")
-    ap.add_argument("--since", help="Take into account only events since date. Date format MM-DD-YYYY")
-    ap.add_argument("--until", help="Take into account only events until date. Date format MM-DD-YYYY")
+    ap.add_argument(
+        "-np", action='store_true',
+        help="Stalks a user without showing their profile")
+    ap.add_argument(
+        "--since",
+        help=(
+            "Take into account only events since date. Date format MM-DD-YYYY")
+    )
+    ap.add_argument(
+        "--until",
+        help=(
+            "Take into account only events until date. Date format MM-DD-YYYY")
+    )
     args = vars(ap.parse_args())
 
     if len(args) > 1:
@@ -323,8 +351,7 @@ def run():
         print(
             "Enter a valid username to stalk. \n"
             "For eg: stalk aashutoshrathi \n"
-            "Or you can type stalk --help for help"
-        )
+            "Or you can type stalk --help for help")
 
 
 if __name__ == '__main__':
