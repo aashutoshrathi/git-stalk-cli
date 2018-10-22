@@ -2,8 +2,8 @@ import argparse
 import datetime
 import os
 import re
-from collections import namedtuple
 import requests
+from collections import namedtuple
 from dateutil import tz
 from prettytable import PrettyTable
 
@@ -19,7 +19,6 @@ def jft(user):
 
 def get_event(string):
     """Returns the event"""
-    event = ""
     words = re.findall('[A-Z][^A-Z]*', string)
     event = " ".join(words)
     if event == "Pull Request Review Comment Event":
@@ -120,34 +119,17 @@ def get_contributions(user, latest, date_text, org=None):
         is added to the table
         and prints the table.
     """
-    print("Contributions Today: ")
+    print("Contributions: ")
     if latest:
         table = PrettyTable(["Type", "Repository", "Time", "Details"])
-        for event in latest:
-            repo_name = event["repo"]["name"]
-            if org:
-                curr_org = ""
-                for c in repo_name:
-                    if c == r'/':
-                        break
-                    curr_org += c
-                if curr_org == org:
-                    table.add_row([
-                        get_event(event["type"]),
-                        event["repo"]["name"],
-                        get_local_time(event["created_at"]),
-                        get_details(event)
-                    ])
-            else:
-                table.add_row([
-                    get_event(event["type"]),
-                    event["repo"]["name"],
-                    get_local_time(event["created_at"]),
-                    get_details(event)
-                ])
+        for e in latest:
+            curr_org = re.match('^.+?(?=/)', e["repo"]["name"]).group()
+            if org is None or org == curr_org:
+                table.add_row([e['type'], e["repo"]["name"], get_local_time(e["created_at"]), get_details(e)])
+
         print(table)
-    print("{} have made {} public contribution(s) {}.\n".format(
-        user, str(len(latest)), date_text))
+        print("{} have made {} public contribution(s) {}.\n".format(
+            user, str(len(latest)), date_text))
 
 
 def get_other_activity(user, other, date_text):
@@ -250,24 +232,15 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
         created_at = datetime.datetime.strptime(
             e['created_at'][:10], "%Y-%m-%d")
 
-        if since_date and until_date:
-            if until_date >= created_at >= since_date:
-                filtered_events.append(e)
-
-        elif since_date:
-            if created_at >= since_date:
-                filtered_events.append(e)
-            else:
-                break
-
-        elif until_date:
-            if created_at <= until_date:
-                filtered_events.append(e)
+        if (since_date and until_date and (until_date >= created_at >= since_date)) \
+                or (since_date and (created_at >= since_date)
+                    or (until_date and created_at <= until_date)):
+            filtered_events.append(e)
 
     return filtered_events
 
 
-def getipaddress():
+def ip_address():
     return requests.get("http://ipecho.net/plain?").text
 
 
@@ -280,59 +253,28 @@ def show_contri(args=None):
     today = str(now.strftime("%Y-%m-%d"))
     link = "{}{}/events".format(github_uri, str(user))
     response = requests.get(link)
-    events = response.json()
+    since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y") if args['since'] else None
+    until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y") if args["until"] else None
+    events = build_events(response, since_date, until_date)
     latest = []
     stars = []
     other = []
 
-    text_date = ""
     if response.status_code == 200:
-        since_date = None
-        until_date = None
-
-        if args["since"]:
-            since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
-
-        if args["until"]:
-            until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
-
-        if since_date or until_date:
-            events = filter_since_until_dates(
-                events, since_date=since_date, until_date=until_date)
+        if 'since_date' in vars() or 'until_date' in vars():
+            latest, stars, other = fill_dated_data(
+                user, events, latest, stars, other)
         else:
-            if 'since_date' in vars() or 'until_date' in vars():
-                latest, stars, other = fill_dated_data(
-                    user, events, latest, stars, other)
-            else:
-                latest, stars, other = fill_todays_data(
-                    user, today, events, latest, stars, other)
-        # Populate text_date based on since_date and until_date.
-        if since_date and until_date:
-            text_date = "from {} to {}".format(since_date, until_date)
-        elif since_date:
-            text_date = "since {}".format(since_date)
-        elif until_date:
-            text_date = "until {}".format(until_date)
+            latest, stars, other = fill_todays_data(
+                user, today, events, latest, stars, other)
 
-    elif response.status_code == 404:
-        print("User with username {0} does not exists, please check and \
-         try again".format(str(user)))
-        return
-
-    elif response.status_code == 403:
-        print("API rate limit exceeded for IP address \
-            " + getipaddress() + " Try again later or change IP adress.")
-
+        text_date = build_text_date(since_date, until_date)
     else:
-        print(
-            "Something went wrong, please check your Internet connection \n"
-            "Use stalk --help for Help"
-        )
+        print(return_message(response.status_code, user))
         return
 
     if not args["np"]:
         get_basic_info(user)
-
     if args["org"]:
         get_contributions(user, latest, text_date, args["org"])
     else:
@@ -340,6 +282,31 @@ def show_contri(args=None):
 
     get_other_activity(user, other, text_date)
     display_stars(user, stars, text_date)
+
+
+def build_events(response, since_date, until_date):
+    if since_date or until_date:
+        return filter_since_until_dates(response.json(), since_date=since_date, until_date=until_date)
+    else:
+        return response.json()
+
+
+def build_text_date(since_date, until_date):
+    if since_date and until_date:
+        return "from {} to {}".format(since_date, until_date)
+    elif since_date:
+        return "since {}".format(since_date)
+    elif until_date:
+        return "until {}".format(until_date)
+
+
+def return_message(code, user):
+    if code == 404:
+        return f"User with username {user} does not exists, please check and try again"
+    elif code == 403:
+        return f"API rate limit exceeded for IP address {ip_address()} + Try again later or change IP adress."
+    else:
+        return "Something went wrong, please check your Internet connection \n Use stalk --help for Help"
 
 
 def run():
