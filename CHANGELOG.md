@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2018-10-23
+
+### Added
+
+- Bump version: 1.1.1 → 1.2.0 by @aashutoshrathi
+- Updated .gitignore by @aashutoshrathi
+- Remove too-complex-functions warnings by @hyunchel
+- Added Bumpversion by @gpetrousov
+
 ## [1.1.1] - 2018-10-17
 
 ### Added
