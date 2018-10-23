@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import datetime
 import os
@@ -32,29 +33,17 @@ def get_event(string):
 
 
 def get_details(event):
-    """Returns the details of the event according as per type of the event"""
-    res = ""
-    if event["type"] == "IssuesEvent":
-        res += event["payload"]["issue"]["title"]
-    elif event["type"] == "IssueCommentEvent":
-        res += event["payload"]["comment"]["body"]
-    elif event["type"] == "PullRequestEvent":
-        res += event["payload"]["pull_request"]["title"]
-    elif event["type"] == "PushEvent":
-        for commit in event["payload"]["commits"]:
-            if commit["distinct"]:
-                res += commit["message"]
-    elif event["type"] == "MemberEvent":
-        res += "Added {} as collaborator".format(
-            event["payload"]["member"]["login"]
-        )
-    elif event["type"] == "ReleaseEvent":
-        res += "Released binaries for version {}".format(
-            event["payload"]["release"]["tag_name"]
-        )
-    elif event["type"] == "ForkEvent":
-        res += "Forked " + event["repo"]["name"]
-    return res
+    """Returns the details of the event according to the type of the event"""
+    types = {
+        "IssuesEvent": event["payload"]["issue"]["title"],
+        "IssuesCommentEvent": event["payload"]["comment"]["body"],
+        "PullRequestEvent": event["payload"]["pull_request"]["title"],
+        "PushEvent": "".join([commit["message"] for commit in event["payload"]["commits"] if commit["distinct"]]),
+        "MemberEvent": "Added {} as collaborator".format(event["payload"]["member"]["login"]),
+        "ReleaseEvent": "Released binaries for version {}".format(event["payload"]["release"]["tag_name"]),
+        "ForkEvent": "Forked {}".format(event["repo"]["name"]),
+    }
+    return types.get(event["type"], "")
 
 
 def check_for_fork(link, user):
@@ -244,31 +233,36 @@ def update():
 
 def filter_since_until_dates(events, since_date=None, until_date=None):
     """Filters the events based on since and until dates"""
-
-    filtered_events = []
-    for e in events:
-        created_at = datetime.datetime.strptime(
-            e['created_at'][:10], "%Y-%m-%d")
-
-        if since_date and until_date:
-            if until_date >= created_at >= since_date:
-                filtered_events.append(e)
-
-        elif since_date:
-            if created_at >= since_date:
-                filtered_events.append(e)
-            else:
-                break
-
-        elif until_date:
-            if created_at <= until_date:
-                filtered_events.append(e)
-
-    return filtered_events
+    event_tuples = [(datetime.datetime.strptime(event['created_at'][:10], "%Y-%m-%d"), event) for event in events]
+    if since_date:
+        event_tuples = [since_date <= event_tuple[0] for event_tuple in event_tuples]
+    if until_date:
+        event_tuples = [event_tuple[0] <= until_date for event_tuple in event_tuples]
+    return [et[1] for et in event_tuples]
 
 
 def getipaddress():
     return requests.get("http://ipecho.net/plain?").text
+
+
+def parse_date_from_string(datetime_object):
+    """Return datetime object as string."""
+    return datetime.datetime.strptime(datetime_object, "%m-%d-%Y")
+
+
+def get_dates_from_arguments(arguments):
+    """Return triplet of dates from given arguments."""
+    since_date, until_date, text_date = None, None, ""
+    if arguments["since"]:
+        since_date = parse_date_from_string(arguments["since"])
+        text_date = "since {}".format(since_date)
+    if arguments["until"]:
+        until_date = parse_date_from_string(arguments["until"])
+        if text_date == "":
+            text_date = "until {}".format(until_date)
+        else:
+            text_date = "from {} to {}".format(since_date, until_date)
+    return since_date, until_date, text_date
 
 
 def show_contri(args=None):
@@ -276,8 +270,7 @@ def show_contri(args=None):
     utility functions"""
 
     user = args["name"]
-    now = datetime.datetime.now()
-    today = str(now.strftime("%Y-%m-%d"))
+    today = str(datetime.datetime.now().strftime("%Y-%m-%d"))
     link = "{}{}/events".format(github_uri, str(user))
     response = requests.get(link)
     events = response.json()
@@ -286,60 +279,38 @@ def show_contri(args=None):
     other = []
 
     text_date = ""
+    # NOTE: This needs more work. Possibly creating its own class of some sorts.
     if response.status_code == 200:
-        since_date = None
-        until_date = None
+        since_date, until_date, text_date = get_dates_from_arguments(args)
+        events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
 
-        if args["since"]:
-            since_date = datetime.datetime.strptime(args["since"], "%m-%d-%Y")
-
-        if args["until"]:
-            until_date = datetime.datetime.strptime(args["until"], "%m-%d-%Y")
-
-        if since_date or until_date:
-            events = filter_since_until_dates(
-                events, since_date=since_date, until_date=until_date)
+        if 'since_date' in vars() or 'until_date' in vars():
+            latest, stars, other = fill_dated_data(
+                user, events, latest, stars, other)
         else:
-            if 'since_date' in vars() or 'until_date' in vars():
-                latest, stars, other = fill_dated_data(
-                    user, events, latest, stars, other)
-            else:
-                latest, stars, other = fill_todays_data(
-                    user, today, events, latest, stars, other)
-        # Populate text_date based on since_date and until_date.
-        if since_date and until_date:
-            text_date = "from {} to {}".format(since_date, until_date)
-        elif since_date:
-            text_date = "since {}".format(since_date)
-        elif until_date:
-            text_date = "until {}".format(until_date)
+            latest, stars, other = fill_todays_data(
+                user, today, events, latest, stars, other)
 
-    elif response.status_code == 404:
-        print("User with username {0} does not exists, please check and \
-         try again".format(str(user)))
-        return
+        if not args["np"]:
+            get_basic_info(user)
 
-    elif response.status_code == 403:
-        print("API rate limit exceeded for IP address \
-            " + getipaddress() + " Try again later or change IP adress.")
+        if args["org"]:
+            get_contributions(user, latest, text_date, args["org"])
+        else:
+            get_contributions(user, latest, text_date)
 
+        get_other_activity(user, other, text_date)
+        display_stars(user, stars, text_date)
     else:
-        print(
-            "Something went wrong, please check your Internet connection \n"
-            "Use stalk --help for Help"
-        )
-        return
-
-    if not args["np"]:
-        get_basic_info(user)
-
-    if args["org"]:
-        get_contributions(user, latest, text_date, args["org"])
-    else:
-        get_contributions(user, latest, text_date)
-
-    get_other_activity(user, other, text_date)
-    display_stars(user, stars, text_date)
+        error_messages = {
+            404: "User with username {0} does not exists, please check and try again".format(user),
+            403: ("API rate limit exceeded for IP address"
+                  " {} Try again later or change IP adress.").format(getipaddress()),
+        }
+        fallback_error_message = ("Something went wrong, please check your internet connection \n"
+                                  "Use stalk --help for Help")
+        err_msg = error_messages.get(response.status_code, fallback_error_message)
+        print(err_msg)
 
 
 def run():
