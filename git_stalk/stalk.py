@@ -52,7 +52,7 @@ def check_for_fork(link, user):
     if tukde[len(tukde) - 2] == user:
         response = requests.get(link)
         repo = response.json()
-        if not repo["fork"]:
+        if ("fork" in repo) and (not repo["fork"]):
             return True
         return False
     return True
