@@ -3,11 +3,11 @@ import argparse
 import datetime
 import os
 import re
+import sys
 from collections import namedtuple
 import requests
 from dateutil import tz
 from prettytable import PrettyTable
-import sys
 
 github_uri = "https://api.github.com/users/"
 StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
