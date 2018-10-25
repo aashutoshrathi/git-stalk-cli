@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2018-10-25
+
+### Bug Fixes
+
+- Fixed the application call with no arguments, now showing help by @rods-honorio 
+
 ## [1.2.0] - 2018-10-23
 
 ### Added

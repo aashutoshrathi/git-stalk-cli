@@ -3,6 +3,7 @@ import argparse
 import datetime
 import os
 import re
+import sys
 from collections import namedtuple
 import requests
 from dateutil import tz
@@ -340,7 +341,7 @@ def run():
         help=(
             "Take into account only events until date. Date format MM-DD-YYYY")
     )
-    args = vars(ap.parse_args())
+    args = vars(ap.parse_args(args=None if sys.argv[1:] else ['--help']))
 
     if len(args) > 1:
         if args["update"]:
