@@ -7,6 +7,7 @@ from collections import namedtuple
 import requests
 from dateutil import tz
 from prettytable import PrettyTable
+import sys
 
 github_uri = "https://api.github.com/users/"
 StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
@@ -341,6 +342,9 @@ def run():
             "Take into account only events until date. Date format MM-DD-YYYY")
     )
     args = vars(ap.parse_args())
+    if len(sys.argv) == 1:
+        ap.print_help()
+        sys.exit(1)
 
     if len(args) > 1:
         if args["update"]:
