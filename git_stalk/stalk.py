@@ -67,6 +67,29 @@ def get_local_time(string):
     return samay
 
 
+def get_following_users(user):
+    """prints the users followed by current user"""
+    following_link = "{}{}/following".format(github_uri, str(user))
+    following_users = requests.get(following_link).json()
+
+    print("Following : ")
+    for following_user in following_users:
+        print("{}".format(following_user["login"]))
+    print("\n")
+
+
+def get_followers(user):
+    """prints the followers of user"""
+
+    followers_link = "{}{}/followers".format(github_uri, str(user))
+    followers = requests.get(followers_link).json()
+
+    print("Followed By : ")
+    for follower in followers:
+        print("{}".format(follower["login"]))
+    print("\n")
+
+
 def get_basic_info(user):
     """Prints the user's basic info."""
 
@@ -300,6 +323,11 @@ def show_contri(args=None):
         else:
             get_contributions(user, latest, text_date)
 
+        if args["follows"]:
+            get_following_users(user)
+
+        if args["followers"]:
+            get_followers(user)
         get_other_activity(user, other, text_date)
         display_stars(user, stars, text_date)
     else:
@@ -332,6 +360,12 @@ def run():
         "-np", action='store_true',
         help="Stalks a user without showing their profile")
     ap.add_argument(
+        "--followers", action='store_true',
+        help="display all the followers of the user")
+    ap.add_argument(
+        "--follows", action='store_true',
+        help="display all the users followed by the user")
+    ap.add_argument(
         "--since",
         help=(
             "Take into account only events since date. Date format MM-DD-YYYY")
@@ -341,7 +375,10 @@ def run():
         help=(
             "Take into account only events until date. Date format MM-DD-YYYY")
     )
-    args = vars(ap.parse_args(args=None if sys.argv[1:] else ['--help']))
+    args = vars(ap.parse_args())
+    if len(sys.argv) == 1:
+        ap.print_help()
+        sys.exit(1)
 
     if len(args) > 1:
         if args["update"]:
