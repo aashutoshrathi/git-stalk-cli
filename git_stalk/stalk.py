@@ -67,6 +67,17 @@ def get_local_time(string):
     return samay
 
 
+def get_followers(user):
+    """prints the followers of user"""
+
+    followers_link="{}{}/followers".format(github_uri,str(user))
+    followers=requests.get(followers_link).json()
+
+    print("Followed By : ")
+    for follower in followers:
+        print("{}".format(follower["login"]))
+
+
 def get_basic_info(user):
     """Prints the user's basic info."""
 
@@ -300,6 +311,9 @@ def show_contri(args=None):
         else:
             get_contributions(user, latest, text_date)
 
+
+        if args["followers"]:
+            get_followers(user)
         get_other_activity(user, other, text_date)
         display_stars(user, stars, text_date)
     else:
@@ -331,6 +345,9 @@ def run():
     ap.add_argument(
         "-np", action='store_true',
         help="Stalks a user without showing their profile")
+    ap.add_argument(
+        "--followers",action='store_true',
+        help="display all the followers of the user")
     ap.add_argument(
         "--since",
         help=(
