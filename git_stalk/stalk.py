@@ -20,7 +20,7 @@ def jft(user):
 
 
 def get_event(string):
-    """Returns the event"""
+    # Returns the event
     event = ""
     words = re.findall('[A-Z][^A-Z]*', string)
     event = " ".join(words)
@@ -34,7 +34,7 @@ def get_event(string):
 
 
 def get_details(event):
-    """Returns the details of the event according to the type of the event"""
+    # Returns the details of the event according to the type of the event
     types = {
         "IssuesEvent": event["payload"]["issue"]["title"],
         "IssuesCommentEvent": event["payload"]["comment"]["body"],
@@ -48,7 +48,7 @@ def get_details(event):
 
 
 def check_for_fork(link, user):
-    """Check whether it is a forked."""
+    # Check whether it is a fork
     tukde = link.split('/')
     if tukde[len(tukde) - 2] == user:
         response = requests.get(link)
@@ -60,7 +60,7 @@ def check_for_fork(link, user):
 
 
 def get_local_time(string):
-    """Returns the local time."""
+    # Returns the local time
     local_time = convert_to_local(string)
     tukde = local_time.split(' ')
     samay = tukde[1].split('+')[0]
@@ -68,7 +68,7 @@ def get_local_time(string):
 
 
 def get_following_users(user):
-    """prints the users followed by current user"""
+    # prints the users followed by current user
     following_link = "{}{}/following".format(github_uri, str(user))
     following_users = requests.get(following_link).json()
 
@@ -79,7 +79,7 @@ def get_following_users(user):
 
 
 def get_followers(user):
-    """prints the followers of user"""
+    # prints the followers of user
 
     followers_link = "{}{}/followers".format(github_uri, str(user))
     followers = requests.get(followers_link).json()
@@ -91,7 +91,7 @@ def get_followers(user):
 
 
 def get_basic_info(user):
-    """Prints the user's basic info."""
+    # Prints the user's basic info
 
     user_link = "{}{}".format(github_uri, str(user))
     user_profile = requests.get(user_link)
@@ -108,7 +108,7 @@ def get_basic_info(user):
 
 
 def convert_to_local(string):
-    """Returns the local_stamp as string."""
+    # Returns the local_stamp as string
 
     from_zone = tz.tzutc()
     to_zone = tz.tzlocal()
@@ -251,12 +251,12 @@ def create_star(event):
 
 
 def update():
-    """Runs the upgrade command and upgrades git-stalk"""
+    # Runs the upgrade command and upgrades git-stalk
     os.system("pip install --upgrade git-stalk")
 
 
 def filter_since_until_dates(events, since_date=None, until_date=None):
-    """Filters the events based on since and until dates"""
+    # Filters the events based on since and until dates
     event_tuples = [(datetime.datetime.strptime(event['created_at'][:10], "%Y-%m-%d"), event) for event in events]
     if since_date:
         event_tuples = [since_date <= event_tuple[0] for event_tuple in event_tuples]
@@ -275,7 +275,7 @@ def parse_date_from_string(datetime_object):
 
 
 def get_dates_from_arguments(arguments):
-    """Return triplet of dates from given arguments."""
+    # Return triplet of dates from given arguments
     since_date, until_date, text_date = None, None, ""
     if arguments["since"]:
         since_date = parse_date_from_string(arguments["since"])
