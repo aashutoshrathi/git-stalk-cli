@@ -1,5 +1,26 @@
+#! /usr/bin/env python
+
+"""
+usage: stalk <name> [--org ORG] [-U] [--np] [--followers] [--follows]
+                    [--since SINCE] [--until UNTIL]
+
+positional arguments:
+  name           name of the user
+
+optional arguments:
+  --org ORG      Organization Name
+  -U, --update   Update this program to latest version. Make sure that you
+                 have sufficient permissions (run with sudo if needed)
+  --np           Stalks a user without showing their profile
+  --followers    display all the followers of the user
+  --follows      display all the users followed by the user
+  --since SINCE  Take into account only events since date. Date format MM-DD-YYYY
+  --until UNTIL  Take into account only events until date. Date format MM-DD-YYYY
+  --version      Print application version
+  -h, --help     show this help message and exit
+"""
+
 from __future__ import print_function
-import argparse
 import datetime
 import os
 import re
@@ -7,6 +28,7 @@ import sys
 from collections import namedtuple
 import requests
 from dateutil import tz
+from docopt import docopt
 from prettytable import PrettyTable
 
 github_uri = "https://api.github.com/users/"
@@ -279,11 +301,11 @@ def parse_date_from_string(datetime_object):
 def get_dates_from_arguments(arguments):
     """Return triplet of dates from given arguments."""
     since_date, until_date, text_date = None, None, ""
-    if arguments["since"]:
-        since_date = parse_date_from_string(arguments["since"])
+    if arguments["--since"]:
+        since_date = parse_date_from_string(arguments["--since"])
         text_date = "since {}".format(since_date)
-    if arguments["until"]:
-        until_date = parse_date_from_string(arguments["until"])
+    if arguments["--until"]:
+        until_date = parse_date_from_string(arguments["--until"])
         if text_date == "":
             text_date = "until {}".format(until_date)
         else:
@@ -295,7 +317,7 @@ def show_contri(args=None):
     """Sends a get request to GitHub REST api and display data using the
     utility functions"""
 
-    user = args["name"]
+    user = args["<name>"]
     today = str(datetime.datetime.now().strftime("%Y-%m-%d"))
     link = "{}{}/events".format(github_uri, str(user))
     response = requests.get(link)
@@ -317,18 +339,18 @@ def show_contri(args=None):
             latest, stars, other = fill_todays_data(
                 user, today, events, latest, stars, other)
 
-        if not args["np"]:
+        if not args["--np"]:
             get_basic_info(user)
 
-        if args["org"]:
-            get_contributions(user, latest, text_date, args["org"])
+        if args["--org"]:
+            get_contributions(user, latest, text_date, args["--org"])
         else:
             get_contributions(user, latest, text_date)
 
-        if args["follows"]:
+        if args["--follows"]:
             get_following_users(user)
 
-        if args["followers"]:
+        if args["--followers"]:
             get_followers(user)
         get_other_activity(user, other, text_date)
         display_stars(user, stars, text_date)
@@ -347,52 +369,17 @@ def show_contri(args=None):
 def run():
     """Parsing the command line arguments using argparse and calls the update
     or show_contri function as required"""
+    from git_stalk import __version__
 
-    ap = argparse.ArgumentParser()
-    ap.add_argument("name", nargs='?', help="name of the user")
-    ap.add_argument("--org", help="Organization Name")
-    ap.add_argument(
-        "-U", "--update",
-        action='store_true',
-        help="Update this program to latest version. "
-             "Make sure that you have sufficient permissions \
-             (run with sudo if needed)"
-    )
-    ap.add_argument(
-        "-np", action='store_true',
-        help="Stalks a user without showing their profile")
-    ap.add_argument(
-        "--followers", action='store_true',
-        help="display all the followers of the user")
-    ap.add_argument(
-        "--follows", action='store_true',
-        help="display all the users followed by the user")
-    ap.add_argument(
-        "--since",
-        help=(
-            "Take into account only events since date. Date format MM-DD-YYYY")
-    )
-    ap.add_argument(
-        "--until",
-        help=(
-            "Take into account only events until date. Date format MM-DD-YYYY")
-    )
-    args = vars(ap.parse_args())
-    if len(sys.argv) == 1:
-        ap.print_help()
+    from docopt import docopt, DocoptExit
+
+    try:
+        args = docopt(__doc__, version=__version__)
+    except DocoptExit:
+        print(__doc__)
         sys.exit(1)
 
-    if len(args) > 1:
-        if args["update"]:
-            update()
-        else:
-            show_contri(args)
+    if args["--update"]:
+        update()
     else:
-        print(
-            "Enter a valid username to stalk. \n"
-            "For eg: stalk aashutoshrathi \n"
-            "Or you can type stalk --help for help")
-
-
-if __name__ == '__main__':
-    run()
+        show_contri(args)
