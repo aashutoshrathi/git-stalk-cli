@@ -155,7 +155,7 @@ def convert_to_local(string):
     from_zone = tz.tzutc()
     to_zone = tz.tzlocal()
     utc_stamp = datetime.datetime.strptime(
-        string,'%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=from_zone)
+        string, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=from_zone)
     local_stamp = utc_stamp.astimezone(to_zone)
 
     return str(local_stamp)
