@@ -20,15 +20,21 @@ optional arguments:
   -h, --help     show this help message and exit
 """
 
+# python stdlib
 from __future__ import print_function
 import datetime
 import os
 import re
 import sys
 from collections import namedtuple
+
+# git-stalk imports
+from git_stalk import __version__
+
+# 3rd party imports
 import requests
 from dateutil import tz
-from docopt import docopt
+from docopt import docopt, DocoptExit
 from prettytable import PrettyTable
 
 github_uri = "https://api.github.com/users/"
@@ -369,10 +375,6 @@ def show_contri(args=None):
 def run():
     """Parsing the command line arguments using argparse and calls the update
     or show_contri function as required"""
-    from git_stalk import __version__
-
-    from docopt import docopt, DocoptExit
-
     try:
         args = docopt(__doc__, version=__version__)
     except DocoptExit:
