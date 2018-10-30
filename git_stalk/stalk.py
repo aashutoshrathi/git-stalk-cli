@@ -28,13 +28,11 @@ import re
 import sys
 from collections import namedtuple
 
-# git-stalk imports
-from git_stalk import __version__
-
-# 3rd party imports
+# git_stalk ackage and 3rd party imports
 import requests
 from dateutil import tz
 from docopt import docopt, DocoptExit
+from git_stalk import __version__
 from prettytable import PrettyTable
 
 github_uri = "https://api.github.com/users/"
@@ -42,7 +40,7 @@ StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
 
 
 def jft(user):
-    """ """
+    """ Return userlink statuscode """
     user_link = "{0}{1}".format(github_uri, str(user))
     response = requests.get(user_link)
 
