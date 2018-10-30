@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2018-10-30
+
+### Added
+
+- Fixed bug " KeyError for Issue and Name" by @VANKINEENITAWRUN.
+
 ## [1.2.2] - 2018-10-26
 
 ### Added

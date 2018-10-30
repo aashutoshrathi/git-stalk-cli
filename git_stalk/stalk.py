@@ -35,15 +35,17 @@ def get_event(string):
 
 def get_details(event):
     """Returns the details of the event according to the type of the event"""
-    types = {
-        "IssuesEvent": event["payload"]["issue"]["title"],
-        "IssuesCommentEvent": event["payload"]["comment"]["body"],
-        "PullRequestEvent": event["payload"]["pull_request"]["title"],
-        "PushEvent": "".join([commit["message"] for commit in event["payload"]["commits"] if commit["distinct"]]),
-        "MemberEvent": "Added {} as collaborator".format(event["payload"]["member"]["login"]),
-        "ReleaseEvent": "Released binaries for version {}".format(event["payload"]["release"]["tag_name"]),
-        "ForkEvent": "Forked {}".format(event["repo"]["name"]),
-    }
+    types = {"IssuesEvent": event.get("payload", {}).get("issue", {}).get("title"),
+             "IssuesCommentEvent": event.get("payload", {}).get("comment", {}).get("body"),
+             "PullRequestEvent": event.get("payload", {}).get("pull_request", {}).get("title"),
+             "PushEvent": "".join([commit["message"]
+                                   for commit in event.get("payload", {}).get("commits", {}) if commit["distinct"]]),
+             "MemberEvent": "Added {} as collaborator".format(event.get("payload", {})
+                                                              .get("member", {}).get("login")),
+             "ReleaseEvent": "Released binaries for version {}".format(event.get("payload", {})
+                                                                       .get("release", {}).get("tag_name")),
+             "ForkEvent": "Forked {}".format(event.get("repo", {}.get("name")))}
+
     return types.get(event["type"], "")
 
 
