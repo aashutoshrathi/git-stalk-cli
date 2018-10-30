@@ -334,10 +334,10 @@ def filter_since_until_dates(events, since_date=None, until_date=None):
     """Filters the events based on since and until dates"""
     event_tuples = [(datetime.datetime.strptime(event['created_at'][:10], "%Y-%m-%d"), event) for event in events]
     if since_date:
-        event_tuples = [since_date <= event_tuple[0] for event_tuple in event_tuples]
+        event_tuples = [event_tuple[1] for event_tuple in event_tuples if since_date <= event_tuple[0]]
     if until_date:
-        event_tuples = [event_tuple[0] <= until_date for event_tuple in event_tuples]
-    return [et[1] for et in event_tuples]
+        event_tuples = [event_tuple[1] for event_tuple in event_tuples if event_tuple[0] <= until_date]
+    return event_tuples
 
 
 def getipaddress():
