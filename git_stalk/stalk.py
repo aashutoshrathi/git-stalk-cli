@@ -28,12 +28,14 @@ import re
 import sys
 from collections import namedtuple
 
-# git_stalk ackage and 3rd party imports
+# 3rd party imports
 import requests
 from dateutil import tz
 from docopt import docopt, DocoptExit
-from git_stalk import __version__
 from prettytable import PrettyTable
+
+# Git Stalk imports
+from git_stalk import __version__
 
 github_uri = "https://api.github.com/users/"
 StarredRepo = namedtuple('StarredRepo', ['name', 'language', 'time'])
