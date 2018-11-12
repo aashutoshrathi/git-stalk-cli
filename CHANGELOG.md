@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.2] - 2018-10-30
+
+### Added
+
+- Fixed "since and until arguments error" by @VANKINEENITAWRUN.
+
 ## [1.4.1] - 2018-10-30
 
 ### Added
