@@ -76,8 +76,9 @@ def get_details(event):
         commit["message"]for commit in event.get("payload", {}).get("commits", {}) if commit["distinct"]
     ])
     member_login = event.get("payload", {}).get("member", {}).get("login")
-    release_tag_name = event.get("payload", {}).get("release", {}).get("tag_name")
-    repo_name = event.get("repo", {}.get("name"))
+    release_tag_name = event.get("payload", {}).get(
+        "release", {}).get("tag_name")
+    repo_name = event.get("repo", {}).get("name")
 
     types = {
         "IssuesEvent": issue_title,
@@ -332,11 +333,14 @@ def update():
 
 def filter_since_until_dates(events, since_date=None, until_date=None):
     """Filters the events based on since and until dates"""
-    event_tuples = [(datetime.datetime.strptime(event['created_at'][:10], "%Y-%m-%d"), event) for event in events]
+    event_tuples = [(datetime.datetime.strptime(
+        event['created_at'][:10], "%Y-%m-%d"), event) for event in events]
     if since_date:
-        event_tuples = [event_tuple for event_tuple in event_tuples if since_date <= event_tuple[0]]
+        event_tuples = [
+            event_tuple for event_tuple in event_tuples if since_date <= event_tuple[0]]
     if until_date:
-        event_tuples = [event_tuple for event_tuple in event_tuples if event_tuple[0] <= until_date]
+        event_tuples = [
+            event_tuple for event_tuple in event_tuples if event_tuple[0] <= until_date]
     return [event_tuple[1] for event_tuple in event_tuples]
 
 
@@ -385,12 +389,15 @@ def show_contri(args=None):
     # NOTE: This needs more work. Possibly creating its own class of some sorts.
     if response.status_code == 200:
         since_date, until_date, text_date = get_dates_from_arguments(args)
-        events = filter_since_until_dates(events, since_date=since_date, until_date=until_date)
+        events = filter_since_until_dates(
+            events, since_date=since_date, until_date=until_date)
 
         if 'since_date' in vars() or 'until_date' in vars():
-            latest, stars, other = fill_dated_data(user, events, latest, stars, other)
+            latest, stars, other = fill_dated_data(
+                user, events, latest, stars, other)
         else:
-            latest, stars, other = fill_todays_data(user, today, events, latest, stars, other)
+            latest, stars, other = fill_todays_data(
+                user, today, events, latest, stars, other)
 
         if not args["--np"]:
             get_basic_info(user)
@@ -418,7 +425,8 @@ def show_contri(args=None):
             "Something went wrong, please check your internet connection \n"
             "Use stalk --help for Help"
         )
-        err_msg = error_messages.get(response.status_code, fallback_error_message)
+        err_msg = error_messages.get(
+            response.status_code, fallback_error_message)
 
         print(err_msg)
 
