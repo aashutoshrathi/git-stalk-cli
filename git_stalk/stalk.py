@@ -79,6 +79,8 @@ def get_details(event):
     release_tag_name = event.get("payload", {}).get(
         "release", {}).get("tag_name")
     repo_name = event.get("repo", {}).get("name")
+    deleted_obj_ref = event.get("payload", {}).get("ref")
+    deleted_obj_type = event.get("payload", {}).get("ref_type")
 
     types = {
         "IssuesEvent": issue_title,
@@ -88,6 +90,7 @@ def get_details(event):
         "MemberEvent": "Added {0} as collaborator".format(member_login),
         "ReleaseEvent": "Released binaries for version {0}".format(release_tag_name),
         "ForkEvent": "Forked {0}".format(repo_name),
+        "DeleteEvent": "Deleted {0}: {1}".format(str(deleted_obj_type).title(), deleted_obj_ref),
     }
 
     return types.get(event["type"], "")
